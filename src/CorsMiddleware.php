@@ -40,7 +40,7 @@ class CorsMiddleware
      */
     public function __construct(AnalyzerInterface $analyzer = null)
     {
-        $this->analyzer = $analyzer !== null ? $analyzer : Analyzer::instance(new Settings());
+        $this->analyzer = $analyzer;
     }
 
     /**
@@ -53,7 +53,7 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $cors = $this->analyzer->analyze(new IlluminateRequestToPsr7($request));
+        $cors = $this->getAnalyzer()->analyze(new IlluminateRequestToPsr7($request));
 
         switch ($cors->getRequestType()) {
             case AnalysisResultInterface::TYPE_REQUEST_OUT_OF_CORS_SCOPE:
@@ -92,5 +92,17 @@ class CorsMiddleware
         $analysisResult ?: null;
 
         return new Response(null, Response::HTTP_BAD_REQUEST);
+    }
+
+    /**
+     * @return AnalyzerInterface
+     */
+    protected function getAnalyzer()
+    {
+        if ($this->analyzer === null) {
+            $this->analyzer = Analyzer::instance(new Settings());
+        }
+
+        return $this->analyzer;
     }
 }
