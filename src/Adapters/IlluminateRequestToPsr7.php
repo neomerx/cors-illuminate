@@ -1,0 +1,194 @@
+<?php namespace Neomerx\CorsIlluminate\Adapters;
+
+/**
+ * Copyright 2015 info@neomerx.com (www.neomerx.com)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+use \LogicException;
+use \Illuminate\Http\Request;
+use \Psr\Http\Message\UriInterface;
+use \Psr\Http\Message\StreamInterface;
+use \Psr\Http\Message\RequestInterface;
+
+/**
+ * This class is a wrapper for Laravel/Lumen Requests to PSR-7 compatible objects designed specifically for
+ * neomerx/cors-psr-7 package and implements only the methods required by neomerx/cors-psr-7.
+ *
+ * If you are already using PSR-7 Bridge solutions it's totally fine to replace this class with them.
+ * The main benefit of this class it's very lightweight.
+ *
+ * @package Neomerx\CorsIlluminate
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ */
+class IlluminateRequestToPsr7 implements RequestInterface
+{
+    /**
+     * @var Request
+     */
+    private $request;
+
+    /**
+     * @param Request $request
+     */
+    public function __construct(Request $request)
+    {
+        $this->request = $request;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMethod()
+    {
+        return $this->request->getMethod();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasHeader($name)
+    {
+        return $this->request->headers->has($name);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHeader($name)
+    {
+        return $this->request->headers->get($name, null, false);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getProtocolVersion()
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withProtocolVersion($version)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHeaders()
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getHeaderLine($name)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withHeader($name, $value)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withAddedHeader($name, $value)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withoutHeader($name)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getBody()
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withBody(StreamInterface $body)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRequestTarget()
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withRequestTarget($requestTarget)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withMethod($method)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getUri()
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function withUri(UriInterface $uri, $preserveHost = false)
+    {
+        $this->notImplemented();
+    }
+
+    /**
+     * Throws exception. This method should never be called.
+     */
+    private function notImplemented()
+    {
+        throw new LogicException('Method is not implemented');
+    }
+}
