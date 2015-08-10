@@ -1,6 +1,8 @@
 ## Description
 
-This package adds [Cross-Origin Resource Sharing](www.w3.org/TR/cors/) (CORS) support to your Laravel application.
+This package adds [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) (CORS) support to your Laravel application.
+
+The package is based on [Framework agnostic (PSR-7) CORS implementation](https://github.com/neomerx/cors-psr7).
 
 ## Install
 
@@ -27,6 +29,24 @@ return [
     ...
 
 ];
+```
+
+Add CORS middleware to your HTTP stack at `app/Http/Kernel.php` file. The middleware should be added to `$middleware` list which is executed for all routes (even non declared in your routes file). Preferably before 'heavy' middleware for performance reasons.
+
+```php
+class Kernel extends HttpKernel
+{
+    ...
+
+    protected $middleware = [
+        \Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode::class,
+        \Neomerx\CorsIlluminate\CorsMiddleware::class, // <== add this line
+        
+        ...
+    ];
+    
+    ...
+}
 ```
 
 Then you will configure CORS. Firstly create a config file by executing
