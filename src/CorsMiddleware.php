@@ -36,7 +36,7 @@ class CorsMiddleware
     private $analyzer;
 
     /**
-     * @param AnalyzerInterface $analyzer
+     * @param AnalyzerInterface|null $analyzer
      */
     public function __construct(AnalyzerInterface $analyzer = null)
     {
