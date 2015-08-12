@@ -1,3 +1,4 @@
+[![Project Management](https://img.shields.io/badge/project-management-blue.svg)](https://waffle.io/neomerx/cors-illuminate)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/?branch=master)
 [![Build Status](https://travis-ci.org/neomerx/cors-illuminate.svg?branch=master)](https://travis-ci.org/neomerx/cors-illuminate)
