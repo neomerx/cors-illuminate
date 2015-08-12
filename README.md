@@ -1,3 +1,9 @@
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/neomerx/cors-illuminate/?branch=master)
+[![Build Status](https://travis-ci.org/neomerx/cors-illuminate.svg?branch=master)](https://travis-ci.org/neomerx/cors-illuminate)
+[![HHVM](https://img.shields.io/hhvm/neomerx/cors-illuminate.svg)](https://travis-ci.org/neomerx/cors-illuminate)
+[![License](https://img.shields.io/packagist/l/neomerx/cors-illuminate.svg)](https://packagist.org/packages/neomerx/cors-illuminate)
+
 ## Description
 
 This package adds [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) (CORS) support to your Laravel application.
