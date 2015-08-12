@@ -77,7 +77,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getProtocolVersion()
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -85,7 +85,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withProtocolVersion($version)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -93,7 +93,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getHeaders()
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -101,7 +101,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getHeaderLine($name)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -109,7 +109,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withHeader($name, $value)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -117,7 +117,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withAddedHeader($name, $value)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -125,7 +125,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withoutHeader($name)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -133,7 +133,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getBody()
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -141,7 +141,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withBody(StreamInterface $body)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -149,7 +149,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getRequestTarget()
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -157,7 +157,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withRequestTarget($requestTarget)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -165,7 +165,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function withMethod($method)
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
@@ -173,21 +173,13 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getUri()
     {
-        $this->notImplemented();
+        throw new LogicException('Method is not implemented');
     }
 
     /**
      * @inheritdoc
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
-    {
-        $this->notImplemented();
-    }
-
-    /**
-     * Throws exception. This method should never be called.
-     */
-    private function notImplemented()
     {
         throw new LogicException('Method is not implemented');
     }

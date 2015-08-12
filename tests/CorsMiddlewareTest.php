@@ -23,6 +23,7 @@ use \Illuminate\Http\Request;
 use \Illuminate\Http\Response;
 use \Neomerx\CorsIlluminate\CorsMiddleware;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
+use \Neomerx\CorsIlluminate\Settings\Settings;
 use \Neomerx\Cors\Contracts\AnalysisResultInterface;
 
 /**
@@ -55,6 +56,32 @@ class CorsMiddlewareTest extends BaseTestCase
         $this->request        = Mockery::mock(Request::class);
         $this->analyzer       = Mockery::mock(AnalyzerInterface::class);
         $this->analysisResult = Mockery::mock(AnalysisResultInterface::class);
+    }
+
+    /**
+     * Test can be created without input args.
+     */
+    public function testCreate()
+    {
+        $middleware = new CorsMiddleware();
+
+        $oldOrigin  = Settings::$serverOrigin;
+        $oldAllowed = Settings::$allowedOrigins;
+        try {
+            Settings::$serverOrigin   = [
+                'scheme' => 'http',
+                'host'   => 'localhost',
+                'port'   => 8080,
+            ];
+            Settings::$allowedOrigins = [];
+
+            $middleware->handle(new Request(), function () {
+                return null;
+            });
+        } finally {
+            Settings::$serverOrigin = $oldOrigin;
+            Settings::$allowedOrigins = $oldAllowed;
+        }
     }
 
     /**

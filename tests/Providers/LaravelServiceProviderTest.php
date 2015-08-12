@@ -16,7 +16,11 @@
  * limitations under the License.
  */
 
+use \Mockery;
+use \Mockery\MockInterface;
 use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
+use \Neomerx\CorsIlluminate\Providers\LaravelServiceProvider;
+use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
@@ -24,13 +28,57 @@ use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
 class LaravelServiceProviderTest extends BaseTestCase
 {
     /**
-     * Test provider.
+     * @var ApplicationInterface
      */
-    public function testProvider()
+    private $app;
+
+    /**
+     * @var MockInterface
+     */
+    private $config;
+
+    /**
+     * @var LaravelServiceProvider
+     */
+    private $provider;
+
+    /**
+     * @inheritDoc
+     */
+    protected function setUp()
     {
-        // nothing to test here.
-        // LaravelServiceProvider is a basic Laravel specific integration code
-        // which IMO can't be tested unless very heavily mocked.
-        // It just doesn't make any sense.
+        parent::setUp();
+
+        $this->config = Mockery::mock();
+        $this->app    = [
+            'path.config' => '/some/config/path',
+            'config'      => $this->config,
+        ];
+
+        $this->provider = new LaravelServiceProvider($this->app);
+    }
+
+    /**
+     * Test register provider.
+     */
+    public function testRegister()
+    {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->config->shouldReceive('get')->withAnyArgs()->once()->andReturn([]);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->config->shouldReceive('set')->withAnyArgs()->once()->andReturnUndefined();
+
+        $this->provider->register();
+    }
+
+    /**
+     * Test boot provider.
+     */
+    public function testBoot()
+    {
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->config->shouldReceive('get')->withAnyArgs()->once()->andReturn([]);
+
+        $this->provider->boot();
     }
 }

@@ -17,6 +17,7 @@
  */
 
 use \Illuminate\Support\ServiceProvider;
+use \Illuminate\Contracts\Config\Repository;
 use \Neomerx\CorsIlluminate\Settings\Settings;
 
 /**
@@ -48,13 +49,15 @@ class LaravelServiceProvider extends ServiceProvider
     public function boot()
     {
         // publish config
-        $publishPath = $this->app->make('path.config') . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
+        $publishPath = $this->app['path.config'] . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
         $this->publishes([
             $this->getConfigPath() => $publishPath,
         ]);
 
         // load settings
-        $settings = $this->app->make('config')->get(static::CONFIG_FILE_NAME_WO_EXT);
+        /** @var Repository $config */
+        $config   = $this->app['config'];
+        $settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT);
         Settings::setSettings($settings);
     }
 
