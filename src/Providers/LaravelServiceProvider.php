@@ -48,17 +48,31 @@ class LaravelServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // publish config
+        $this->registerPublishConfig();
+        $this->loadSettings();
+    }
+
+    /**
+     * @return void
+     */
+    protected function registerPublishConfig()
+    {
         $publishPath = $this->app['path.config'] . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
         $this->publishes([
             $this->getConfigPath() => $publishPath,
         ]);
+    }
 
-        // load settings
+    /**
+     * @return void
+     */
+    protected function loadSettings()
+    {
         /** @var Repository $config */
-        $config   = $this->app['config'];
-        $settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT);
-        Settings::setSettings($settings);
+        if (($config = $this->app['config']) !== null) {
+            $settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT);
+            Settings::setSettings($settings);
+        }
     }
 
     /**
