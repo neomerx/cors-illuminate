@@ -20,9 +20,11 @@ use \Closure;
 use \Neomerx\Cors\Analyzer;
 use \Illuminate\Http\Request;
 use \Illuminate\Http\Response;
+use \Psr\Http\Message\RequestInterface;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
 use \Neomerx\CorsIlluminate\Settings\Settings;
 use \Neomerx\Cors\Contracts\AnalysisResultInterface;
+use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
 use \Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
 
 /**
@@ -53,7 +55,7 @@ class CorsMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        $cors = $this->getAnalyzer()->analyze(new IlluminateRequestToPsr7($request));
+        $cors = $this->getCorsAnalysis($request);
 
         switch ($cors->getRequestType()) {
             case AnalysisResultInterface::TYPE_REQUEST_OUT_OF_CORS_SCOPE:
@@ -82,6 +84,20 @@ class CorsMiddleware
     }
 
     /**
+     * @return AnalyzerInterface
+     */
+    protected function getAnalyzer()
+    {
+        if ($this->analyzer === null) {
+            $this->analyzer = Analyzer::instance($this->getSettings());
+        }
+
+        return $this->analyzer;
+    }
+
+    /**
+     * You can override this method in order to customize error reply.
+     *
      * @param AnalysisResultInterface $analysisResult
      *
      * @return Response
@@ -95,14 +111,37 @@ class CorsMiddleware
     }
 
     /**
-     * @return AnalyzerInterface
+     * You can override this method to save its return result (e.g. in Illuminate Container) for
+     * using it in other parts of the application (e.g. in exception handler).
+     *
+     * @param Request $request
+     *
+     * @return AnalysisResultInterface
      */
-    protected function getAnalyzer()
+    protected function getCorsAnalysis(Request $request)
     {
-        if ($this->analyzer === null) {
-            $this->analyzer = Analyzer::instance(new Settings());
-        }
+        return $this->getAnalyzer()->analyze($this->getRequestAdapter($request));
+    }
 
-        return $this->analyzer;
+    /**
+     * You can override this method to replace IlluminateRequestToPsr7 adapter with another one.
+     *
+     * @param Request $request
+     *
+     * @return RequestInterface
+     */
+    protected function getRequestAdapter(Request $request)
+    {
+        return new IlluminateRequestToPsr7($request);
+    }
+
+    /**
+     * You can override this class if more customized `AnalysisStrategyInterface` behaviour is needed.
+     *
+     * @return AnalysisStrategyInterface
+     */
+    protected function getSettings()
+    {
+        return new Settings();
     }
 }
