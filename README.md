@@ -62,6 +62,8 @@ Then you will configure CORS. Firstly create a config file by executing
 php artisan vendor:publish --provider="Neomerx\CorsIlluminate\Providers\LaravelServiceProvider"
 ```
 
+**Note for Lumen** Lumen does not support `vendor:publish` command and file `vendor/neomerx/cors-illuminate/config/cors-illuminate.php` have to be manually copied to `config/cors-illuminate.php`.
+
 it will create `config/cors-illuminate.php` file in you application.
 
 [This file](config/cors-illuminate.php) is extensively commented so it will be easy for you to set up it for your needs. First settings you need to configure are server origin (URL) and allowed origins
@@ -96,6 +98,16 @@ it will create `config/cors-illuminate.php` file in you application.
 ```
 composer test
 ```
+
+## Customization
+
+This package provides a number of ways how its behaviour could be customized.
+
+The following methods of class `CorsMiddleware` could be overriden
+- `getResponseOnError` You can override this method in order to customize error reply.
+- `getCorsAnalysis` You can override this method to save its return result (e.g. in Illuminate Container) for using it in other parts of the application (e.g. in exception handler).
+- `getRequestAdapter` You can override this method to replace `IlluminateRequestToPsr7` adapter with another one.
+- `getSettings` You can override this class if more customized [AnalysisStrategyInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalysisStrategyInterface.php) behaviour is needed.
 
 ## Contributing
 
