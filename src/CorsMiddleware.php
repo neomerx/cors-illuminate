@@ -17,15 +17,13 @@
  */
 
 use \Closure;
-use \Neomerx\Cors\Analyzer;
 use \Illuminate\Http\Request;
 use \Illuminate\Http\Response;
 use \Psr\Http\Message\RequestInterface;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
-use \Neomerx\CorsIlluminate\Settings\Settings;
 use \Neomerx\Cors\Contracts\AnalysisResultInterface;
-use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
 use \Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
+use \Illuminate\Contracts\Container\Container as ContainerInterface;
 
 /**
  * @package Neomerx\CorsIlluminate
@@ -38,11 +36,18 @@ class CorsMiddleware
     private $analyzer;
 
     /**
-     * @param AnalyzerInterface|null $analyzer
+     * @var ContainerInterface
      */
-    public function __construct(AnalyzerInterface $analyzer = null)
+    private $container;
+
+    /**
+     * @param AnalyzerInterface  $analyzer
+     * @param ContainerInterface $container
+     */
+    public function __construct(AnalyzerInterface $analyzer, ContainerInterface $container)
     {
-        $this->analyzer = $analyzer;
+        $this->analyzer  = $analyzer;
+        $this->container = $container;
     }
 
     /**
@@ -84,18 +89,6 @@ class CorsMiddleware
     }
 
     /**
-     * @return AnalyzerInterface
-     */
-    protected function getAnalyzer()
-    {
-        if ($this->analyzer === null) {
-            $this->analyzer = Analyzer::instance($this->getSettings());
-        }
-
-        return $this->analyzer;
-    }
-
-    /**
      * You can override this method in order to customize error reply.
      *
      * @param AnalysisResultInterface $analysisResult
@@ -111,7 +104,7 @@ class CorsMiddleware
     }
 
     /**
-     * You can override this method to save its return result (e.g. in Illuminate Container) for
+     * This method saves analysis result in Illuminate Container for
      * using it in other parts of the application (e.g. in exception handler).
      *
      * @param Request $request
@@ -120,7 +113,10 @@ class CorsMiddleware
      */
     protected function getCorsAnalysis(Request $request)
     {
-        return $this->getAnalyzer()->analyze($this->getRequestAdapter($request));
+        $analysis = $this->analyzer->analyze($this->getRequestAdapter($request));
+        $this->container->instance(AnalysisResultInterface::class, $analysis);
+
+        return $analysis;
     }
 
     /**
@@ -133,15 +129,5 @@ class CorsMiddleware
     protected function getRequestAdapter(Request $request)
     {
         return new IlluminateRequestToPsr7($request);
-    }
-
-    /**
-     * You can override this class if more customized `AnalysisStrategyInterface` behaviour is needed.
-     *
-     * @return AnalysisStrategyInterface
-     */
-    protected function getSettings()
-    {
-        return new Settings();
     }
 }

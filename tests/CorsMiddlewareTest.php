@@ -23,11 +23,13 @@ use \Illuminate\Http\Request;
 use \Illuminate\Http\Response;
 use \Neomerx\CorsIlluminate\CorsMiddleware;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
-use \Neomerx\CorsIlluminate\Settings\Settings;
 use \Neomerx\Cors\Contracts\AnalysisResultInterface;
+use \Illuminate\Contracts\Container\Container as ContainerInterface;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CorsMiddlewareTest extends BaseTestCase
 {
@@ -47,6 +49,16 @@ class CorsMiddlewareTest extends BaseTestCase
     private $analysisResult;
 
     /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    /**
+     * @var CorsMiddleware
+     */
+    private $middleware;
+
+    /**
      * @inheritDoc
      */
     protected function setUp()
@@ -55,33 +67,9 @@ class CorsMiddlewareTest extends BaseTestCase
 
         $this->request        = Mockery::mock(Request::class);
         $this->analyzer       = Mockery::mock(AnalyzerInterface::class);
+        $this->container      = Mockery::mock(ContainerInterface::class);
         $this->analysisResult = Mockery::mock(AnalysisResultInterface::class);
-    }
-
-    /**
-     * Test can be created without input args.
-     */
-    public function testCreate()
-    {
-        $middleware = new CorsMiddleware();
-
-        $oldOrigin  = Settings::$serverOrigin;
-        $oldAllowed = Settings::$allowedOrigins;
-        try {
-            Settings::$serverOrigin   = [
-                'scheme' => 'http',
-                'host'   => 'localhost',
-                'port'   => 8080,
-            ];
-            Settings::$allowedOrigins = [];
-
-            $middleware->handle(new Request(), function () {
-                return null;
-            });
-        } finally {
-            Settings::$serverOrigin = $oldOrigin;
-            Settings::$allowedOrigins = $oldAllowed;
-        }
+        $this->middleware     = new CorsMiddleware($this->analyzer, $this->container);
     }
 
     /**
@@ -89,13 +77,13 @@ class CorsMiddlewareTest extends BaseTestCase
      */
     public function testOutOfScope()
     {
-        $middleware = new CorsMiddleware($this->analyzer);
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled);
         $this->mockAnalyzerCall('analyze', $this->analysisResult);
+        $this->mockContainerCall('instance', [AnalysisResultInterface::class, $this->analysisResult]);
         $this->mockAnalysisCall('getRequestType', AnalysisResultInterface::TYPE_REQUEST_OUT_OF_CORS_SCOPE);
 
-        $this->assertNotNull($middleware->handle($this->request, $next));
+        $this->assertNotNull($this->middleware->handle($this->request, $next));
         $this->assertTrue($nextCalled);
     }
 
@@ -104,14 +92,14 @@ class CorsMiddlewareTest extends BaseTestCase
      */
     public function testPreFlight()
     {
-        $middleware = new CorsMiddleware($this->analyzer);
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled);
         $this->mockAnalyzerCall('analyze', $this->analysisResult);
+        $this->mockContainerCall('instance', [AnalysisResultInterface::class, $this->analysisResult]);
         $this->mockAnalysisCall('getRequestType', AnalysisResultInterface::TYPE_PRE_FLIGHT_REQUEST);
         $this->mockAnalysisCall('getResponseHeaders', []);
 
-        $this->assertNotNull($middleware->handle($this->request, $next));
+        $this->assertNotNull($this->middleware->handle($this->request, $next));
         $this->assertFalse($nextCalled);
     }
 
@@ -122,15 +110,15 @@ class CorsMiddlewareTest extends BaseTestCase
     {
         $headerName = 'Some-Header';
 
-        $middleware = new CorsMiddleware($this->analyzer);
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled, new Response(null, Response::HTTP_OK, [$headerName => 'value 1']));
         $this->mockAnalyzerCall('analyze', $this->analysisResult);
+        $this->mockContainerCall('instance', [AnalysisResultInterface::class, $this->analysisResult]);
         $this->mockAnalysisCall('getRequestType', AnalysisResultInterface::TYPE_ACTUAL_REQUEST);
         $this->mockAnalysisCall('getResponseHeaders', [$headerName => 'value 2']);
 
         /** @var Response $response */
-        $this->assertNotNull($response = $middleware->handle($this->request, $next));
+        $this->assertNotNull($response = $this->middleware->handle($this->request, $next));
         $this->assertTrue($nextCalled);
         $this->assertEquals(['value 1', 'value 2'], $response->headers->get($headerName, null, false));
     }
@@ -140,13 +128,13 @@ class CorsMiddlewareTest extends BaseTestCase
      */
     public function testError()
     {
-        $middleware = new CorsMiddleware($this->analyzer);
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled);
         $this->mockAnalyzerCall('analyze', $this->analysisResult);
+        $this->mockContainerCall('instance', [AnalysisResultInterface::class, $this->analysisResult]);
         $this->mockAnalysisCall('getRequestType', AnalysisResultInterface::ERR_ORIGIN_NOT_ALLOWED);
 
-        $this->assertNotNull($middleware->handle($this->request, $next));
+        $this->assertNotNull($this->middleware->handle($this->request, $next));
         $this->assertFalse($nextCalled);
     }
 
@@ -179,6 +167,21 @@ class CorsMiddlewareTest extends BaseTestCase
         $analyzer = $this->analyzer;
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $analyzer->shouldReceive($method)->once()->withAnyArgs()->andReturn($returnValue);
+    }
+
+    /**
+     * @param string $method
+     * @param array  $args
+     * @param mixed  $result
+     *
+     * @return void
+     */
+    private function mockContainerCall($method, array $args, $result = null)
+    {
+        /** @var MockInterface $container */
+        $container = $this->container;
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $container->shouldReceive($method)->once()->withArgs($args)->andReturn($result);
     }
 
     /**

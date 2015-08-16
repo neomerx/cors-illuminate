@@ -16,9 +16,13 @@
  * limitations under the License.
  */
 
+use \Closure;
+use \Neomerx\Cors\Analyzer;
 use \Illuminate\Support\ServiceProvider;
 use \Illuminate\Contracts\Config\Repository;
+use \Neomerx\Cors\Contracts\AnalyzerInterface;
 use \Neomerx\CorsIlluminate\Settings\Settings;
+use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
 
 /**
  * @package Neomerx\CorsIlluminate
@@ -39,6 +43,9 @@ class LaravelServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom($this->getConfigPath(), static::CONFIG_FILE_NAME_WO_EXT);
+
+        $this->app->bind(AnalysisStrategyInterface::class, $this->getCreateAnalysisStrategyClosure());
+        $this->app->bind(AnalyzerInterface::class, $this->getCreateAnalyzerClosure());
     }
 
     /**
@@ -50,6 +57,27 @@ class LaravelServiceProvider extends ServiceProvider
     {
         $this->registerPublishConfig();
         $this->loadSettings();
+    }
+
+    /**
+     * @return Closure
+     */
+    protected function getCreateAnalysisStrategyClosure()
+    {
+        return function () {
+            return new Settings();
+        };
+    }
+
+    /**
+     * @return Closure
+     */
+    protected function getCreateAnalyzerClosure()
+    {
+        return function ($app) {
+            $strategy = $app[AnalysisStrategyInterface::class];
+            return Analyzer::instance($strategy);
+        };
     }
 
     /**

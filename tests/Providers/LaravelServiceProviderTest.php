@@ -16,9 +16,16 @@
  * limitations under the License.
  */
 
+use \Closure;
 use \Mockery;
+use \ArrayAccess;
+use \ReflectionClass;
+use \ReflectionMethod;
 use \Mockery\MockInterface;
+use \Neomerx\Cors\Contracts\AnalyzerInterface;
+use \Neomerx\CorsIlluminate\Settings\Settings;
 use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
+use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
 use \Neomerx\CorsIlluminate\Providers\LaravelServiceProvider;
 use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
 
@@ -28,7 +35,7 @@ use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
 class LaravelServiceProviderTest extends BaseTestCase
 {
     /**
-     * @var ApplicationInterface
+     * @var MockInterface
      */
     private $app;
 
@@ -43,19 +50,30 @@ class LaravelServiceProviderTest extends BaseTestCase
     private $provider;
 
     /**
+     * @var AnalysisStrategyInterface
+     */
+    private $strategy;
+
+    /**
      * @inheritDoc
      */
     protected function setUp()
     {
         parent::setUp();
 
-        $this->config = Mockery::mock();
-        $this->app    = [
-            'path.config' => '/some/config/path',
-            'config'      => $this->config,
-        ];
+        $this->config   = Mockery::mock();
+        $this->strategy = Mockery::mock(AnalysisStrategyInterface::class);
 
-        $this->provider = new LaravelServiceProvider($this->app);
+        $this->app = Mockery::mock(ArrayAccess::class);
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->app->shouldReceive('offsetGet')->zeroOrMoreTimes()->with('path.config')->andReturn('/some/config/path');
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->app->shouldReceive('offsetGet')->zeroOrMoreTimes()->with('config')->andReturn($this->config);
+
+        /** @var ApplicationInterface $app */
+        $app = $this->app;
+
+        $this->provider = new LaravelServiceProvider($app);
     }
 
     /**
@@ -67,6 +85,8 @@ class LaravelServiceProviderTest extends BaseTestCase
         $this->config->shouldReceive('get')->withAnyArgs()->once()->andReturn([]);
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->config->shouldReceive('set')->withAnyArgs()->once()->andReturnUndefined();
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->app->shouldReceive('bind')->withAnyArgs()->twice()->andReturnUndefined();
 
         $this->provider->register();
     }
@@ -80,5 +100,61 @@ class LaravelServiceProviderTest extends BaseTestCase
         $this->config->shouldReceive('get')->withAnyArgs()->once()->andReturn([]);
 
         $this->provider->boot();
+    }
+
+    /**
+     * Test create analysis strategy.
+     */
+    public function testGetCreateAnalysisStrategyClosure()
+    {
+        $method  = self::getMethod('getCreateAnalysisStrategyClosure');
+        /** @var Closure $closure */
+        $closure = $method->invokeArgs($this->provider, []);
+
+        $this->assertInstanceOf(Closure::class, $closure);
+
+        $oldOrigin  = Settings::$serverOrigin;
+        $oldOrigins = Settings::$allowedOrigins;
+        try {
+            Settings::$serverOrigin   = 'http://localhost';
+            Settings::$allowedOrigins = ['does not matter'];
+            $this->assertNotNull($strategy = $closure());
+        } finally {
+            Settings::$serverOrigin   = $oldOrigin;
+            Settings::$allowedOrigins = $oldOrigins;
+        }
+
+        $this->assertInstanceOf(AnalysisStrategyInterface::class, $strategy);
+    }
+
+    /**
+     * Test create analyzer.
+     */
+    public function testGetCreateAnalyzerClosure()
+    {
+        $method  = self::getMethod('getCreateAnalyzerClosure');
+        $app     = [
+            AnalysisStrategyInterface::class => $this->strategy,
+        ];
+        /** @var Closure $closure */
+        $closure = $method->invokeArgs($this->provider, [$app]);
+
+        $this->assertInstanceOf(Closure::class, $closure);
+        $this->assertNotNull($analyzer = $closure($app));
+        $this->assertInstanceOf(AnalyzerInterface::class, $analyzer);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return ReflectionMethod
+     */
+    protected static function getMethod($name)
+    {
+        $class  = new ReflectionClass(LaravelServiceProvider::class);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+
+        return $method;
     }
 }

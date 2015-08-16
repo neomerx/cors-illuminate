@@ -21,9 +21,7 @@
  */
 class LumenServiceProvider extends LaravelServiceProvider
 {
-    /**
-     * @inheritdoc
-     */
+    /** @noinspection PhpMissingParentCallCommonInspection */
     protected function registerPublishConfig()
     {
         // do nothing
