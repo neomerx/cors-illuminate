@@ -43,9 +43,7 @@ class LaravelServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom($this->getConfigPath(), static::CONFIG_FILE_NAME_WO_EXT);
-
-        $this->app->bind(AnalysisStrategyInterface::class, $this->getCreateAnalysisStrategyClosure());
-        $this->app->bind(AnalyzerInterface::class, $this->getCreateAnalyzerClosure());
+        $this->configureCorsAnalyzer();
     }
 
     /**
@@ -56,28 +54,6 @@ class LaravelServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPublishConfig();
-        $this->loadSettings();
-    }
-
-    /**
-     * @return Closure
-     */
-    protected function getCreateAnalysisStrategyClosure()
-    {
-        return function () {
-            return new Settings();
-        };
-    }
-
-    /**
-     * @return Closure
-     */
-    protected function getCreateAnalyzerClosure()
-    {
-        return function ($app) {
-            $strategy = $app[AnalysisStrategyInterface::class];
-            return Analyzer::instance($strategy);
-        };
     }
 
     /**
@@ -94,13 +70,39 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return void
      */
-    protected function loadSettings()
+    protected function configureCorsAnalyzer()
     {
-        /** @var Repository $config */
-        if (($config = $this->app['config']) !== null) {
-            $settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT);
-            Settings::setSettings($settings);
-        }
+        $this->app->bind(AnalysisStrategyInterface::class, $this->getCreateAnalysisStrategyClosure());
+        $this->app->bind(AnalyzerInterface::class, $this->getCreateAnalyzerClosure());
+    }
+
+    /**
+     * @return Closure
+     */
+    protected function getCreateAnalysisStrategyClosure()
+    {
+        return function ($app) {
+            /** @var Repository $config */
+            $config   = $app['config'];
+            $settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT, []);
+            $strategy = new Settings($settings);
+
+            return $strategy;
+        };
+    }
+
+    /**
+     * @return Closure
+     */
+    protected function getCreateAnalyzerClosure()
+    {
+        return function ($app) {
+            /** @var AnalysisStrategyInterface $strategy */
+            $strategy = $app[AnalysisStrategyInterface::class];
+            $analyzer = Analyzer::instance($strategy);
+
+            return $analyzer;
+        };
     }
 
     /**

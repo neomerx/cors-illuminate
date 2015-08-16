@@ -29,13 +29,25 @@ class SettingsTest extends BaseTestCase
      */
     public function testSetSettings()
     {
-        $originValue = Settings::$isUsingCredentials;
-        try {
-            $newValue = !$originValue;
-            Settings::setSettings([Settings::KEY_IS_USING_CREDENTIALS => $newValue]);
-            $this->assertEquals($newValue, Settings::$isUsingCredentials);
-        } finally {
-            Settings::$isUsingCredentials = $originValue;
-        }
+        $origin = [
+            'scheme' => 'http',
+            'host'   => 'some-host.com',
+            'port'   => 567,
+        ];
+
+        $settings = new Settings([
+            Settings::KEY_SERVER_ORIGIN        => $origin,
+            Settings::KEY_ALLOWED_ORIGINS      => ['http://does-not-matter.foo' => true],
+            Settings::KEY_ALLOWED_METHODS      => ['DOES-NOT-MATTER'   => true],
+            Settings::KEY_ALLOWED_HEADERS      => ['x-does-not-matter' => true],
+            Settings::KEY_EXPOSED_HEADERS      => ['x-does-not-matter' => true],
+            Settings::KEY_IS_USING_CREDENTIALS => false,
+            Settings::KEY_PRE_FLIGHT_MAX_AGE   => 0,
+            Settings::KEY_FORCE_ADD_METHODS    => false,
+            Settings::KEY_FORCE_ADD_HEADERS    => false,
+            Settings::KEY_CHECK_HOST_HEADER    => false,
+        ]);
+
+        $this->assertEquals($origin, $settings->getServerOrigin());
     }
 }

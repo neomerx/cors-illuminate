@@ -30,11 +30,11 @@ class LumenServiceProvider extends LaravelServiceProvider
     /**
      * @inheritdoc
      */
-    protected function loadSettings()
+    protected function configureCorsAnalyzer()
     {
         /** @noinspection PhpUndefinedMethodInspection */
         $this->app->configure(self::CONFIG_FILE_NAME_WO_EXT);
 
-        parent::loadSettings();
+        parent::configureCorsAnalyzer();
     }
 }

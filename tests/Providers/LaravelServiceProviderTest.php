@@ -96,9 +96,6 @@ class LaravelServiceProviderTest extends BaseTestCase
      */
     public function testBoot()
     {
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $this->config->shouldReceive('get')->withAnyArgs()->once()->andReturn([]);
-
         $this->provider->boot();
     }
 
@@ -108,22 +105,24 @@ class LaravelServiceProviderTest extends BaseTestCase
     public function testGetCreateAnalysisStrategyClosure()
     {
         $method  = self::getMethod('getCreateAnalysisStrategyClosure');
+        $app     = [
+            'config' => $this->config,
+        ];
+
         /** @var Closure $closure */
         $closure = $method->invokeArgs($this->provider, []);
 
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->config
+            ->shouldReceive('get')
+            ->withArgs([LaravelServiceProvider::CONFIG_FILE_NAME_WO_EXT, []])
+            ->once()
+            ->andReturn([
+                Settings::KEY_SERVER_ORIGIN => 'http://localhost',
+            ]);
+
         $this->assertInstanceOf(Closure::class, $closure);
-
-        $oldOrigin  = Settings::$serverOrigin;
-        $oldOrigins = Settings::$allowedOrigins;
-        try {
-            Settings::$serverOrigin   = 'http://localhost';
-            Settings::$allowedOrigins = ['does not matter'];
-            $this->assertNotNull($strategy = $closure());
-        } finally {
-            Settings::$serverOrigin   = $oldOrigin;
-            Settings::$allowedOrigins = $oldOrigins;
-        }
-
+        $this->assertNotNull($strategy = $closure($app));
         $this->assertInstanceOf(AnalysisStrategyInterface::class, $strategy);
     }
 
@@ -136,8 +135,9 @@ class LaravelServiceProviderTest extends BaseTestCase
         $app     = [
             AnalysisStrategyInterface::class => $this->strategy,
         ];
+
         /** @var Closure $closure */
-        $closure = $method->invokeArgs($this->provider, [$app]);
+        $closure = $method->invokeArgs($this->provider, []);
 
         $this->assertInstanceOf(Closure::class, $closure);
         $this->assertNotNull($analyzer = $closure($app));

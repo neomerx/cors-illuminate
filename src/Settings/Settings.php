@@ -20,6 +20,8 @@ use \Neomerx\Cors\Strategies\Settings as CorsSettings;
 
 /**
  * @package Neomerx\CorsIlluminate
+ *
+ * @SuppressWarnings(PHPMD.TooManyMethods)
  */
 class Settings extends CorsSettings
 {
@@ -75,37 +77,121 @@ class Settings extends CorsSettings
     const KEY_CHECK_HOST_HEADER = 'checkHost';
 
     /**
+     * @param array $settings
+     */
+    public function __construct(array $settings = [])
+    {
+        if (empty($settings) === false) {
+            $this->setSettings($settings);
+        }
+    }
+
+    /**
      * Set app CORS settings.
      *
      * @param array $settings
      */
-    public static function setSettings(array $settings)
+    public function setSettings(array $settings)
     {
-        self::$serverOrigin   = self::getSettingsValue($settings, self::KEY_SERVER_ORIGIN, self::$serverOrigin);
-        self::$allowedOrigins = self::getSettingsValue($settings, self::KEY_ALLOWED_ORIGINS, self::$allowedOrigins);
-        self::$allowedMethods = self::getSettingsValue($settings, self::KEY_ALLOWED_METHODS, self::$allowedMethods);
-        self::$allowedHeaders = self::getSettingsValue($settings, self::KEY_ALLOWED_HEADERS, self::$allowedHeaders);
-        self::$exposedHeaders = self::getSettingsValue($settings, self::KEY_EXPOSED_HEADERS, self::$exposedHeaders);
-        self::$isCheckHost    = self::getSettingsValue($settings, self::KEY_CHECK_HOST_HEADER, self::$isCheckHost);
-        self::$isUsingCredentials =
-            self::getSettingsValue($settings, self::KEY_IS_USING_CREDENTIALS, self::$isUsingCredentials);
-        self::$preFlightCacheMaxAge =
-            self::getSettingsValue($settings, self::KEY_PRE_FLIGHT_MAX_AGE, self::$preFlightCacheMaxAge);
-        self::$isForceAddMethods =
-            self::getSettingsValue($settings, self::KEY_FORCE_ADD_METHODS, self::$isForceAddMethods);
-        self::$isForceAddHeaders =
-            self::getSettingsValue($settings, self::KEY_FORCE_ADD_HEADERS, self::$isForceAddHeaders);
+        $this->configServerOrigin($settings);
+        $this->configRequestAllowedOrigins($settings);
+        $this->configRequestAllowedMethods($settings);
+        $this->configRequestAllowedHeaders($settings);
+        $this->configResponseExposedHeaders($settings);
+        $this->configRequestCredentialsSupported($settings);
+        $this->configPreFlightCacheMaxAge($settings);
+        $this->configForceAddAllowedMethodsToPreFlightResponse($settings);
+        $this->configForceAddAllowedHeadersToPreFlightResponse($settings);
+        $this->configCheckHost($settings);
     }
 
     /**
-     * @param array  $settings
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
+     * @param array $settings
      */
-    private static function getSettingsValue(array $settings, $key, $default)
+    private function configServerOrigin($settings)
     {
-        return isset($settings[$key]) === true ? $settings[$key] : $default;
+        array_key_exists(self::KEY_SERVER_ORIGIN, $settings) === false ?:
+            $this->setServerOrigin($settings[self::KEY_SERVER_ORIGIN]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configRequestAllowedOrigins($settings)
+    {
+        array_key_exists(self::KEY_ALLOWED_ORIGINS, $settings) === false ?:
+            $this->setRequestAllowedOrigins($settings[self::KEY_ALLOWED_ORIGINS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configRequestAllowedMethods($settings)
+    {
+        array_key_exists(self::KEY_ALLOWED_METHODS, $settings) === false ?:
+            $this->setRequestAllowedMethods($settings[self::KEY_ALLOWED_METHODS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configRequestAllowedHeaders($settings)
+    {
+        array_key_exists(self::KEY_ALLOWED_HEADERS, $settings) === false ?:
+            $this->setRequestAllowedHeaders($settings[self::KEY_ALLOWED_HEADERS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configResponseExposedHeaders($settings)
+    {
+        array_key_exists(self::KEY_EXPOSED_HEADERS, $settings) === false ?:
+            $this->setResponseExposedHeaders($settings[self::KEY_EXPOSED_HEADERS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configRequestCredentialsSupported($settings)
+    {
+        array_key_exists(self::KEY_IS_USING_CREDENTIALS, $settings) === false ?:
+            $this->setRequestCredentialsSupported($settings[self::KEY_IS_USING_CREDENTIALS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configPreFlightCacheMaxAge($settings)
+    {
+        array_key_exists(self::KEY_PRE_FLIGHT_MAX_AGE, $settings) === false ?:
+            $this->setPreFlightCacheMaxAge($settings[self::KEY_PRE_FLIGHT_MAX_AGE]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configForceAddAllowedMethodsToPreFlightResponse($settings)
+    {
+        array_key_exists(self::KEY_FORCE_ADD_METHODS, $settings) === false ?:
+            $this->setForceAddAllowedMethodsToPreFlightResponse($settings[self::KEY_FORCE_ADD_METHODS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configForceAddAllowedHeadersToPreFlightResponse($settings)
+    {
+        array_key_exists(self::KEY_FORCE_ADD_HEADERS, $settings) === false ?:
+            $this->setForceAddAllowedHeadersToPreFlightResponse($settings[self::KEY_FORCE_ADD_HEADERS]);
+    }
+
+    /**
+     * @param array $settings
+     */
+    private function configCheckHost($settings)
+    {
+        array_key_exists(self::KEY_CHECK_HOST_HEADER, $settings) === false ?:
+            $this->setCheckHost($settings[self::KEY_CHECK_HOST_HEADER]);
     }
 }

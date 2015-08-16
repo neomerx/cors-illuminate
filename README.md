@@ -62,7 +62,9 @@ Then you will configure CORS. Firstly create a config file by executing
 php artisan vendor:publish --provider="Neomerx\CorsIlluminate\Providers\LaravelServiceProvider"
 ```
 
-**Note for Lumen** Lumen does not support `vendor:publish` command and file `vendor/neomerx/cors-illuminate/config/cors-illuminate.php` have to be manually copied to `config/cors-illuminate.php`.
+**Note for Lumen**
+
+Lumen does not support `vendor:publish` command and file `vendor/neomerx/cors-illuminate/config/cors-illuminate.php` have to be manually copied to `config/cors-illuminate.php`.
 
 it will create `config/cors-illuminate.php` file in you application.
 
@@ -93,10 +95,19 @@ it will create `config/cors-illuminate.php` file in you application.
     ...
 ```
 
-## Testing
+## Exceptions and CORS headers
 
-```
-composer test
+When exceptions are thrown and responses are created in [Laravel/Lumen exception handlers](http://laravel.com/docs/5.1/errors) middleware will be excluded from handling responses. It means CORS middleware will not add its CORS headers to responses. For this reason CORS results (including headers) are registered in [Laravel/Lumen Container](http://laravel.com/docs/5.1/container) and made accessible from any part of your application including exception handlers.
+
+Code sample for reading CORS headers
+
+```php
+$corsHeaders = [];
+if (app()->resolved(AnalysisResultInterface::class) === true) {
+    /** @var AnalysisResultInterface $result */
+    $result = app(AnalysisResultInterface::class);
+    $corsHeaders = $result->getResponseHeaders();
+}
 ```
 
 ## Customization
@@ -107,7 +118,20 @@ The following methods of class `CorsMiddleware` could be overriden
 - `getResponseOnError` You can override this method in order to customize error reply.
 - `getCorsAnalysis` You can override this method to save its return result (e.g. in Illuminate Container) for using it in other parts of the application (e.g. in exception handler).
 - `getRequestAdapter` You can override this method to replace `IlluminateRequestToPsr7` adapter with another one.
-- `getSettings` You can override this class if more customized [AnalysisStrategyInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalysisStrategyInterface.php) behaviour is needed.
+
+Additionally a custom [AnalysisStrategyInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalysisStrategyInterface.php) could be injected by
+- overriding `getCreateAnalysisStrategyClosure` method in `ServiceProvider` for Laravel/Lumen
+- using [Laravel/Lumen Container binding](http://laravel.com/docs/5.1/container) for interface `AnalysisStrategyInterface`
+
+Also custom [AnalyzerInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalyzerInterface.php) could be injected by
+- overriding `getCreateAnalyzerClosure` method in `ServiceProvider` for Laravel/Lumen
+- using [Laravel/Lumen Container binding](http://laravel.com/docs/5.1/container) for interface `AnalyzerInterface`
+
+## Testing
+
+```
+composer test
+```
 
 ## Contributing
 

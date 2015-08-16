@@ -18,6 +18,8 @@
 
 use \Mockery;
 use \ArrayAccess;
+use \ReflectionClass;
+use \ReflectionMethod;
 use \Mockery\MockInterface;
 use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
 use \Neomerx\CorsIlluminate\Providers\LumenServiceProvider;
@@ -50,17 +52,42 @@ class LumenServiceProviderTest extends BaseTestCase
     }
 
     /**
-     * Test register provider.
+     * Test configureCorsAnalyzer method.
      */
-    public function testRegister()
+    public function testConfigureCorsAnalyzer()
     {
+        $method = $this->getMethod('configureCorsAnalyzer');
+
         /** @var MockInterface $app */
         $app = $this->app;
         /** @noinspection PhpMethodParametersCountMismatchInspection */
-        $app->shouldReceive('offsetGet')->once()->withAnyArgs()->andReturnNull();
-        /** @noinspection PhpMethodParametersCountMismatchInspection */
         $app->shouldReceive('configure')->once()->withAnyArgs()->andReturnUndefined();
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $app->shouldReceive('bind')->withAnyArgs()->twice()->andReturnUndefined();
 
-        $this->provider->boot();
+        $method->invokeArgs($this->provider, []);
+    }
+
+    /**
+     * Test registerPublishConfig method.
+     */
+    public function testRegisterPublishConfig()
+    {
+        $method = $this->getMethod('registerPublishConfig');
+        $method->invokeArgs($this->provider, []);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return ReflectionMethod
+     */
+    protected static function getMethod($name)
+    {
+        $class  = new ReflectionClass(LumenServiceProvider::class);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+
+        return $method;
     }
 }
