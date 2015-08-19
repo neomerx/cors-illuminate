@@ -116,7 +116,7 @@ This package provides a number of ways how its behaviour could be customized.
 
 The following methods of class `CorsMiddleware` could be overriden
 - `getResponseOnError` You can override this method in order to customize error reply.
-- `getCorsAnalysis` You can override this method to save its return result (e.g. in Illuminate Container) for using it in other parts of the application (e.g. in exception handler).
+- `getCorsAnalysis` You can override this method to modify how CORS analysis result is saved to Illuminate Container.
 - `getRequestAdapter` You can override this method to replace `IlluminateRequestToPsr7` adapter with another one.
 
 Additionally a custom [AnalysisStrategyInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalysisStrategyInterface.php) could be injected by
