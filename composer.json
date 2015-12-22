@@ -23,7 +23,7 @@
   "require": {
     "php": ">=5.5.0",
     "psr/http-message": "^1.0",
-    "illuminate/http": "~5.1.0",
+    "illuminate/http": "^5.1",
     "neomerx/cors-psr7": "^0.2.0"
   },
   "require-dev": {
@@ -48,5 +48,10 @@
     "phpcs": "./vendor/bin/phpcs -p -s --standard=PSR2 ./src ./tests",
     "phpunit": "phpunit",
     "hhvm": "hhvm ./vendor/phpunit/phpunit/phpunit"
+  },
+  "extra": {
+    "branch-alias": {
+      "dev-master": "1.0.x-dev"
+    }
   }
 }
