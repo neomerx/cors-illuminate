@@ -26,6 +26,11 @@ use \Neomerx\Cors\Strategies\Settings as CorsSettings;
 class Settings extends CorsSettings
 {
     /**
+     * If CORS handling should be logged (true/false, by default is turned off).
+     */
+    const KEY_LOGS_ENABLED = 'logsEnabled';
+
+    /**
      * Could be string or array.
      */
     const KEY_SERVER_ORIGIN = 'serverOrigin';

@@ -18,11 +18,13 @@
 
 use \Closure;
 use \Neomerx\Cors\Analyzer;
+use \Psr\Log\LoggerInterface;
 use \Illuminate\Support\ServiceProvider;
 use \Illuminate\Contracts\Config\Repository;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
 use \Neomerx\CorsIlluminate\Settings\Settings;
 use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
+use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
 
 /**
  * @package Neomerx\CorsIlluminate
@@ -36,6 +38,16 @@ class LaravelServiceProvider extends ServiceProvider
      * @inheritdoc
      */
     protected $defer = false;
+
+    /**
+     * @var bool|null|LoggerInterface
+     */
+    private $logger = false;
+
+    /**
+     * @var bool|array
+     */
+    private $settings = false;
 
     /**
      * @inheritdoc
@@ -82,9 +94,7 @@ class LaravelServiceProvider extends ServiceProvider
     protected function getCreateAnalysisStrategyClosure()
     {
         return function ($app) {
-            /** @var Repository $config */
-            $config   = $app['config'];
-            $settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT, []);
+            $settings = $this->getSettings($app);
             $strategy = new Settings($settings);
 
             return $strategy;
@@ -101,6 +111,9 @@ class LaravelServiceProvider extends ServiceProvider
             $strategy = $app[AnalysisStrategyInterface::class];
             $analyzer = Analyzer::instance($strategy);
 
+            $logger = $this->getLoggerIfEnabled($app);
+            $logger === null ?: $analyzer->setLogger($logger);
+
             return $analyzer;
         };
     }
@@ -114,5 +127,44 @@ class LaravelServiceProvider extends ServiceProvider
         $path = $root . 'config' . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
 
         return $path;
+    }
+
+    /**
+     * @param ApplicationInterface $app
+     *
+     * @return null|LoggerInterface
+     */
+    private function getLoggerIfEnabled($app)
+    {
+        /** @var ApplicationInterface $app */
+
+        if ($this->logger === false) {
+            $settings       = $this->getSettings($app);
+            $loggingEnabled =
+                array_key_exists(Settings::KEY_LOGS_ENABLED, $settings) === true &&
+                $settings[Settings::KEY_LOGS_ENABLED] === true;
+
+            $this->logger = $loggingEnabled === true ? $app[LoggerInterface::class] : null;
+        }
+
+        return $this->logger;
+    }
+
+    /**
+     * @param ApplicationInterface $app
+     *
+     * @return array
+     */
+    private function getSettings($app)
+    {
+        /** @var ApplicationInterface $app */
+
+        if ($this->settings === false) {
+            /** @var Repository $config */
+            $config         = $app['config'];
+            $this->settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT, []);
+        }
+
+        return $this->settings;
     }
 }

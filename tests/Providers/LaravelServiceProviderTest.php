@@ -133,8 +133,18 @@ class LaravelServiceProviderTest extends BaseTestCase
     {
         $method  = self::getMethod('getCreateAnalyzerClosure');
         $app     = [
+            'config'                         => $this->config,
             AnalysisStrategyInterface::class => $this->strategy,
         ];
+
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $this->config
+            ->shouldReceive('get')
+            ->withArgs([LaravelServiceProvider::CONFIG_FILE_NAME_WO_EXT, []])
+            ->once()
+            ->andReturn([
+                Settings::KEY_SERVER_ORIGIN => 'http://localhost',
+            ]);
 
         /** @var Closure $closure */
         $closure = $method->invokeArgs($this->provider, []);

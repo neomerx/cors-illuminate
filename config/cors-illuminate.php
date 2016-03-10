@@ -5,6 +5,11 @@ use \Neomerx\CorsIlluminate\Settings\Settings;
 return [
 
     /**
+     * If CORS handling should be logged. Debugging feature.
+     */
+    Settings::KEY_LOGS_ENABLED  => false,
+
+    /**
      * Could be string or array. If specified as array (recommended for better performance) it should
      * be in parse_url() result format.
      */
