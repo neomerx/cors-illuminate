@@ -13,11 +13,17 @@ The package is based on [Framework agnostic (PSR-7) CORS implementation](https:/
 
 ## Install
 
+### 1 Composer
+
 ```
 composer require neomerx/cors-illuminate
 ```
 
-Add to your applications CORS provider by adding the following line to your `config/app.php` file
+### 2.1 Laravel
+
+> For Lumen skip this step and see step 2.2
+
+Add CORS provider by adding the following line to your `config/app.php` file
 ```php
 <?php
 
@@ -56,19 +62,39 @@ class Kernel extends HttpKernel
 }
 ```
 
-Then you will configure CORS. Firstly create a config file by executing
+Create a config file by executing
 
 ```
 php artisan vendor:publish --provider="Neomerx\CorsIlluminate\Providers\LaravelServiceProvider"
 ```
 
-**Note for Lumen**
-
-Lumen does not support `vendor:publish` command and file `vendor/neomerx/cors-illuminate/config/cors-illuminate.php` have to be manually copied to `config/cors-illuminate.php`.
-
 it will create `config/cors-illuminate.php` file in you application.
 
-[This file](config/cors-illuminate.php) is extensively commented so it will be easy for you to set up it for your needs. First settings you need to configure are server origin (URL) and allowed origins
+### 2.2 Lumen
+
+> For Laravel skip this step
+
+In `bootstrap/app.php` add CORS to global middleware list
+
+```php
+$app->middleware([
+    ...
+    \Neomerx\CorsIlluminate\CorsMiddleware::class,
+]);
+```
+
+and register CORS provider
+
+```php
+$app->register(\Neomerx\CorsIlluminate\Providers\LumenServiceProvider::class);
+```
+
+As Lumen does not support `vendor:publish` command file `vendor/neomerx/cors-illuminate/config/cors-illuminate.php` have to be manually copied to `config/cors-illuminate.php`.
+
+### 3 Configuration
+
+[Configuration file](config/cors-illuminate.php) is extensively commented so it will be easy for you to set up it for your needs. First settings you need to configure are server origin (URL) and allowed origins
+
 ```php
     ...
     
