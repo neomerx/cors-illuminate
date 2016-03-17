@@ -1,19 +1,19 @@
 <?php
 
-use \Neomerx\CorsIlluminate\Settings\Settings;
+use \Neomerx\CorsIlluminate\Settings\Settings as S;
 
 return [
 
     /**
      * If CORS handling should be logged. Debugging feature.
      */
-    Settings::KEY_LOGS_ENABLED  => false,
+    S::KEY_LOGS_ENABLED  => false,
 
     /**
      * Could be string or array. If specified as array (recommended for better performance) it should
      * be in parse_url() result format.
      */
-    Settings::KEY_SERVER_ORIGIN => [
+    S::KEY_SERVER_ORIGIN => [
         'scheme' => 'http',
         'host'   => 'localhost',
         'port'   => 8080,
@@ -25,9 +25,11 @@ return [
      * If value is not on the list it is considered as not allowed.
      * Environment variables could be used for enabling/disabling certain hosts.
      */
-    Settings::KEY_ALLOWED_ORIGINS => [
+    S::KEY_ALLOWED_ORIGINS => [
         'http://localhost'         => true,
         'http://some.disabled.com' => null,
+        // Enabling all origins might be insecure. Consider before using in production.
+        S::VALUE_ALLOW_ORIGIN_ALL  => null,
     ],
 
     /**
@@ -43,7 +45,7 @@ return [
      *
      * You can read more on 'simple' methods at http://www.w3.org/TR/cors/#simple-method
      */
-    Settings::KEY_ALLOWED_METHODS => [
+    S::KEY_ALLOWED_METHODS => [
         'GET'    => true,
         'PATCH'  => true,
         'POST'   => true,
@@ -64,9 +66,11 @@ return [
      *
      * You can read more on 'simple' headers at http://www.w3.org/TR/cors/#simple-header
      */
-    Settings::KEY_ALLOWED_HEADERS => [
-        'content-type'            => null,
-        'x-custom-request-header' => null,
+    S::KEY_ALLOWED_HEADERS => [
+        'content-type'             => null,
+        'x-custom-request-header'  => null,
+        // Enabling all headers might be insecure. Not recommended to use in production.
+        S::VALUE_ALLOW_ALL_HEADERS => null,
     ],
 
     /**
@@ -82,7 +86,7 @@ return [
      *     'x-custom-response-header' => null,
      * ];
      */
-    Settings::KEY_EXPOSED_HEADERS => [
+    S::KEY_EXPOSED_HEADERS => [
         'content-type'             => null,
         'x-custom-response-header' => null,
     ],
@@ -90,11 +94,11 @@ return [
     /**
      * If access with credentials is supported by the resource.
      */
-    Settings::KEY_IS_USING_CREDENTIALS => false,
+    S::KEY_IS_USING_CREDENTIALS => false,
 
     /**
      * Pre-flight response cache max period in seconds.
      */
-    Settings::KEY_PRE_FLIGHT_MAX_AGE => 0,
+    S::KEY_PRE_FLIGHT_MAX_AGE => 0,
 
 ];
