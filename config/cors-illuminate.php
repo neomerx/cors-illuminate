@@ -101,4 +101,20 @@ return [
      */
     S::KEY_PRE_FLIGHT_MAX_AGE => 0,
 
+    /**
+     * If allowed methods should be added to pre-flight response when 'simple' method is requested.
+     */
+    S::KEY_FORCE_ADD_METHODS => false,
+
+    /**
+     * If allowed headers should be added when request headers are 'simple' and
+     * non of them is 'Content-Type'.
+     */
+    S::KEY_IS_FORCE_ADD_HEADERS => false,
+
+    /**
+     * If request 'Host' header should be checked against server's origin.
+     */
+    S::KEY_CHECK_HOST_HEADER => false,
+
 ];
