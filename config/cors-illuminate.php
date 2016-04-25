@@ -99,12 +99,12 @@ return [
     /**
      * Pre-flight response cache max period in seconds.
      */
-    S::KEY_PRE_FLIGHT_MAX_AGE => 0,
+    S::KEY_FLIGHT_CACHE_MAX_AGE => 0,
 
     /**
      * If allowed methods should be added to pre-flight response when 'simple' method is requested.
      */
-    S::KEY_FORCE_ADD_METHODS => false,
+    S::KEY_IS_FORCE_ADD_METHODS => false,
 
     /**
      * If allowed headers should be added when request headers are 'simple' and
@@ -115,6 +115,6 @@ return [
     /**
      * If request 'Host' header should be checked against server's origin.
      */
-    S::KEY_CHECK_HOST_HEADER => false,
+    S::KEY_IS_CHECK_HOST => false,
 
 ];

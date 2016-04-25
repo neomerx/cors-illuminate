@@ -42,12 +42,19 @@ class SettingsTest extends BaseTestCase
             Settings::KEY_ALLOWED_HEADERS      => ['x-does-not-matter' => true],
             Settings::KEY_EXPOSED_HEADERS      => ['x-does-not-matter' => true],
             Settings::KEY_IS_USING_CREDENTIALS => false,
-            Settings::KEY_PRE_FLIGHT_MAX_AGE   => 0,
-            Settings::KEY_FORCE_ADD_METHODS    => false,
-            Settings::KEY_FORCE_ADD_HEADERS    => false,
-            Settings::KEY_CHECK_HOST_HEADER    => false,
+            Settings::KEY_FLIGHT_CACHE_MAX_AGE => 0,
+            Settings::KEY_IS_FORCE_ADD_METHODS => false,
+            Settings::KEY_IS_FORCE_ADD_HEADERS => false,
+            Settings::KEY_IS_CHECK_HOST        => false,
+            Settings::KEY_LOGS_ENABLED         => true,
         ]);
 
         $this->assertEquals($origin, $settings->getServerOrigin());
+        $this->assertEquals(false, $settings->isCheckHost());
+        $this->assertEquals(true, $settings->isLogsEnabled());
+
+        $settings->setLogsEnabled(false);
+
+        $this->assertEquals(false, $settings->isLogsEnabled());
     }
 }
