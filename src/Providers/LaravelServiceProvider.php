@@ -54,7 +54,7 @@ class LaravelServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->mergeConfigFrom($this->getConfigPath(), static::CONFIG_FILE_NAME_WO_EXT);
+        $this->mergeConfigs();
         $this->configureCorsAnalyzer();
     }
 
@@ -66,6 +66,18 @@ class LaravelServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPublishConfig();
+    }
+
+    /**
+     * Merge default config and config from application `config` folder.
+     */
+    protected function mergeConfigs()
+    {
+        $repo   = $this->getConfigRepository();
+        $config = $repo->get(static::CONFIG_FILE_NAME_WO_EXT, []);
+        $base   = $this->getBaseConfig();
+        $result = $config + $base;
+        $repo->set(static::CONFIG_FILE_NAME_WO_EXT, $result);
     }
 
     /**
@@ -93,8 +105,8 @@ class LaravelServiceProvider extends ServiceProvider
      */
     protected function getCreateAnalysisStrategyClosure()
     {
-        return function ($app) {
-            $settings = $this->getSettings($app);
+        return function () {
+            $settings = $this->getSettings();
             $strategy = new Settings($settings);
 
             return $strategy;
@@ -121,7 +133,7 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return string
      */
-    private function getConfigPath()
+    protected function getConfigPath()
     {
         $root = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
         $path = $root . 'config' . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
@@ -134,12 +146,12 @@ class LaravelServiceProvider extends ServiceProvider
      *
      * @return null|LoggerInterface
      */
-    private function getLoggerIfEnabled($app)
+    protected function getLoggerIfEnabled($app)
     {
         /** @var ApplicationInterface $app */
 
         if ($this->logger === false) {
-            $settings       = $this->getSettings($app);
+            $settings       = $this->getSettings();
             $loggingEnabled =
                 array_key_exists(Settings::KEY_LOGS_ENABLED, $settings) === true &&
                 $settings[Settings::KEY_LOGS_ENABLED] === true;
@@ -151,20 +163,39 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param ApplicationInterface $app
-     *
      * @return array
      */
-    private function getSettings($app)
+    protected function getSettings()
     {
         /** @var ApplicationInterface $app */
 
         if ($this->settings === false) {
-            /** @var Repository $config */
-            $config         = $app['config'];
-            $this->settings = $config->get(static::CONFIG_FILE_NAME_WO_EXT, []);
+            $this->settings = $this->getConfigRepository()->get(static::CONFIG_FILE_NAME_WO_EXT, []);
         }
 
         return $this->settings;
+    }
+
+    /**
+     * @return Repository
+     */
+    protected function getConfigRepository()
+    {
+        /** @var Repository $config */
+        $config = $this->app['config'];
+
+        return $config;
+    }
+
+    /**
+     * @return array
+     */
+    protected function getBaseConfig()
+    {
+        $path = $this->getConfigPath();
+        /** @noinspection PhpIncludeInspection */
+        $base = require $path;
+
+        return $base;
     }
 }
