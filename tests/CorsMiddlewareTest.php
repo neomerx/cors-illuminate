@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\CorsIlluminate;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ use \Illuminate\Http\Response;
 use \Neomerx\CorsIlluminate\CorsMiddleware;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
 use \Neomerx\Cors\Contracts\AnalysisResultInterface;
+use \Neomerx\Cors\Contracts\Constants\CorsResponseHeaders;
 use \Illuminate\Contracts\Container\Container as ContainerInterface;
 
 /**
@@ -115,12 +116,19 @@ class CorsMiddlewareTest extends BaseTestCase
         $this->mockAnalyzerCall('analyze', $this->analysisResult);
         $this->mockContainerCall('instance', [AnalysisResultInterface::class, $this->analysisResult]);
         $this->mockAnalysisCall('getRequestType', AnalysisResultInterface::TYPE_ACTUAL_REQUEST);
-        $this->mockAnalysisCall('getResponseHeaders', [$headerName => 'value 2']);
+        $this->mockAnalysisCall(
+            'getResponseHeaders',
+            [
+                $headerName => 'value 2',
+                CorsResponseHeaders::EXPOSE_HEADERS => ['expose1', 'expose2'],
+            ]
+        );
 
         /** @var Response $response */
         $this->assertNotNull($response = $this->middleware->handle($this->request, $next));
         $this->assertTrue($nextCalled);
         $this->assertEquals(['value 1', 'value 2'], $response->headers->get($headerName, null, false));
+        $this->assertEquals('expose1, expose2', $response->headers->get(CorsResponseHeaders::EXPOSE_HEADERS));
     }
 
     /**

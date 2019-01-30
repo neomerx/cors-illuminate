@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\CorsIlluminate\Providers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 use \Mockery;
 use \ArrayAccess;
 use \ReflectionClass;
+use ReflectionException;
 use \ReflectionMethod;
 use \Mockery\MockInterface;
 use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
@@ -53,6 +54,8 @@ class LumenServiceProviderTest extends BaseTestCase
 
     /**
      * Test configureCorsAnalyzer method.
+     *
+     * @throws ReflectionException
      */
     public function testConfigureCorsAnalyzer()
     {
@@ -70,6 +73,8 @@ class LumenServiceProviderTest extends BaseTestCase
 
     /**
      * Test registerPublishConfig method.
+     *
+     * @throws ReflectionException
      */
     public function testRegisterPublishConfig()
     {
@@ -81,6 +86,8 @@ class LumenServiceProviderTest extends BaseTestCase
      * @param string $name
      *
      * @return ReflectionMethod
+     *
+     * @throws ReflectionException
      */
     protected static function getMethod($name)
     {

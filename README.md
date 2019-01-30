@@ -22,6 +22,8 @@ composer require neomerx/cors-illuminate
 
 > For Lumen skip this step and see step 2.2
 
+> For Laravel 5.5+ skip this step and see step 3
+
 Add CORS provider by adding the following line to your `config/app.php` file
 ```php
 <?php

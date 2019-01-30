@@ -1,7 +1,7 @@
 <?php namespace Neomerx\Tests\CorsIlluminate\Providers;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ use \Closure;
 use \Mockery;
 use \ArrayAccess;
 use \ReflectionClass;
+use ReflectionException;
 use \ReflectionMethod;
 use \Mockery\MockInterface;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
@@ -101,6 +102,8 @@ class LaravelServiceProviderTest extends BaseTestCase
 
     /**
      * Test create analysis strategy.
+     *
+     * @throws ReflectionException
      */
     public function testGetCreateAnalysisStrategyClosure()
     {
@@ -128,6 +131,8 @@ class LaravelServiceProviderTest extends BaseTestCase
 
     /**
      * Test create analyzer.
+     *
+     * @throws ReflectionException
      */
     public function testGetCreateAnalyzerClosure()
     {
@@ -158,6 +163,8 @@ class LaravelServiceProviderTest extends BaseTestCase
      * @param string $name
      *
      * @return ReflectionMethod
+     *
+     * @throws ReflectionException
      */
     protected static function getMethod($name)
     {

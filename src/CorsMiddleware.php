@@ -1,7 +1,7 @@
 <?php namespace Neomerx\CorsIlluminate;
 
 /**
- * Copyright 2015-2017 info@neomerx.com
+ * Copyright 2015-2019 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ use \Illuminate\Http\Response;
 use \Psr\Http\Message\RequestInterface;
 use \Neomerx\Cors\Contracts\AnalyzerInterface;
 use \Neomerx\Cors\Contracts\AnalysisResultInterface;
+use \Neomerx\Cors\Contracts\Constants\CorsResponseHeaders;
 use \Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
 use \Illuminate\Contracts\Container\Container as ContainerInterface;
 
@@ -68,14 +69,15 @@ class CorsMiddleware
                 break;
 
             case AnalysisResultInterface::TYPE_PRE_FLIGHT_REQUEST:
-                $response = new Response(null, Response::HTTP_OK, $cors->getResponseHeaders());
+                $headers  = $this->getPrepareCorsHeaders($cors->getResponseHeaders());
+                $response = new Response(null, Response::HTTP_OK, $headers);
                 break;
 
             case AnalysisResultInterface::TYPE_ACTUAL_REQUEST:
                 /** @var Response $response */
                 $response = $next($request);
                 // merge CORS headers to response
-                foreach ($cors->getResponseHeaders() as $name => $value) {
+                foreach ($this->getPrepareCorsHeaders($cors->getResponseHeaders()) as $name => $value) {
                     $response->headers->set($name, $value, false);
                 }
                 break;
@@ -129,5 +131,25 @@ class CorsMiddleware
     protected function getRequestAdapter(Request $request)
     {
         return new IlluminateRequestToPsr7($request);
+    }
+
+    /**
+     * There is an issue with IE which cannot work with multiple 'Access-Control-Expose-Headers' and
+     * requires it them to be comma separated. Chrome and Firefox seem to be not affected.
+     *
+     * @param array $headers
+     *
+     * @return array
+     *
+     * @see https://github.com/neomerx/cors-psr7/issues/31
+     */
+    protected function getPrepareCorsHeaders($headers)
+    {
+        if (array_key_exists(CorsResponseHeaders::EXPOSE_HEADERS, $headers) === true) {
+            $headers[CorsResponseHeaders::EXPOSE_HEADERS] =
+                implode(', ', $headers[CorsResponseHeaders::EXPOSE_HEADERS]);
+        }
+
+        return $headers;
     }
 }
