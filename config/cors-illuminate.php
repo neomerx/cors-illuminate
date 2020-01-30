@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types = 1);
 
 use \Neomerx\CorsIlluminate\Settings\Settings as S;
 
@@ -20,22 +20,16 @@ return [
     ],
 
     /**
-     * A list of allowed request origins (lower-cased, no trail slashes).
-     * Value `true` enables and value `null` disables origin.
+     * A list of allowed request origins (no trail slashes).
      * If value is not on the list it is considered as not allowed.
-     * Environment variables could be used for enabling/disabling certain hosts.
+     * If you want to allow all origins remove/comment this section.
      */
     S::KEY_ALLOWED_ORIGINS => [
-        'http://localhost'         => true,
-        'http://some.disabled.com' => null,
-        // Enabling all origins might be insecure. Consider before using in production.
-        S::VALUE_ALLOW_ORIGIN_ALL  => null,
+        'http://localhost',
     ],
 
     /**
-     * A list of allowed request methods (case sensitive). Value `true` enables and value `null` disables method.
-     * If value is not on the list it is considered as not allowed.
-     * Environment variables could be used for enabling/disabling certain methods.
+     * A list of allowed request methods. * If value is not on the list it is considered as not allowed.
      *
      * Security Note: you have to remember CORS is not access control system and you should not expect all cross-origin
      * requests will have pre-flights. For so-called 'simple' methods with so-called 'simple' headers request
@@ -46,17 +40,15 @@ return [
      * You can read more on 'simple' methods at http://www.w3.org/TR/cors/#simple-method
      */
     S::KEY_ALLOWED_METHODS => [
-        'GET'    => true,
-        'PATCH'  => true,
-        'POST'   => true,
-        'PUT'    => true,
-        'DELETE' => true,
+        'GET',
+        'PATCH',
+        'POST',
+        'PUT',
+        'DELETE',
     ],
 
     /**
-     * A list of allowed request headers (lower-cased). Value `true` enables and value `null` disables header.
-     * If value is not on the list it is considered as not allowed.
-     * Environment variables could be used for enabling/disabling certain headers.
+     * A list of allowed request headers. If value is not on the list it is considered as not allowed.
      *
      * Security Note: you have to remember CORS is not access control system and you should not expect all cross-origin
      * requests will have pre-flights. For so-called 'simple' methods with so-called 'simple' headers request
@@ -67,28 +59,14 @@ return [
      * You can read more on 'simple' headers at http://www.w3.org/TR/cors/#simple-header
      */
     S::KEY_ALLOWED_HEADERS => [
-        'content-type'             => null,
-        'x-custom-request-header'  => null,
-        // Enabling all headers might be insecure. Not recommended to use in production.
-        S::VALUE_ALLOW_ALL_HEADERS => null,
+        'Content-Type',
     ],
 
     /**
      * A list of headers (case insensitive) which will be made accessible to user agent (browser) in response.
-     * Value `true` enables and value `null` disables header.
-     * If value is not on the list it is considered as not allowed.
-     * Environment variables could be used for enabling/disabling certain headers.
-     *
-     * For example,
-     *
-     * public static $exposedHeaders = [
-     *     'content-type'             => true,
-     *     'x-custom-response-header' => null,
-     * ];
      */
     S::KEY_EXPOSED_HEADERS => [
-        'content-type'             => null,
-        'x-custom-response-header' => null,
+        'Content-Type',
     ],
 
     /**

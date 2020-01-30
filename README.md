@@ -10,6 +10,8 @@ This package adds [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) (C
 
 The package is based on [Framework agnostic (PSR-7) CORS implementation](https://github.com/neomerx/cors-psr7).
 
+The **current version V3** is designed for Laravel 6 or higher. If you use lower Laravel version please use **V2**.
+
 ## Install
 
 ### 1 Composer
@@ -18,11 +20,9 @@ The package is based on [Framework agnostic (PSR-7) CORS implementation](https:/
 composer require neomerx/cors-illuminate
 ```
 
-### 2.1 Laravel 5.5+
+### 2.1 Laravel
 
-> For Laravel prior 5.5 skip this step and see step 2.2
-
-> For Lumen skip this step and see step 2.3
+> For Lumen skip this step and see step 2.2
 
 Create a config file by executing
 
@@ -31,35 +31,6 @@ php artisan vendor:publish --provider="Neomerx\CorsIlluminate\Providers\LaravelS
 ```
 
 it will create `config/cors-illuminate.php` file in you application.
-
-> Next see step 3
-
-### 2.2 Laravel
-
-> For Laravel 5.5+ skip this step and see step 3
-
-> For Lumen skip this step and see step 2.3
-
-Add CORS provider by adding the following line to your `config/app.php` file
-```php
-<?php
-
-return [
-
-    ...
-
-    'providers' => [
-
-        ...
-
-        \Neomerx\CorsIlluminate\Providers\LaravelServiceProvider::class,
-
-    ],
-    
-    ...
-
-];
-```
 
 Add CORS middleware to your HTTP stack at `app/Http/Kernel.php` file. The middleware should be added to `$middleware` list which is executed for all routes (even non declared in your routes file). Preferably before 'heavy' middleware for performance reasons.
 
@@ -79,17 +50,9 @@ class Kernel extends HttpKernel
 }
 ```
 
-Create a config file by executing
-
-```
-php artisan vendor:publish --provider="Neomerx\CorsIlluminate\Providers\LaravelServiceProvider"
-```
-
-it will create `config/cors-illuminate.php` file in you application.
-
 > Next see step 3
 
-### 2.3 Lumen
+### 2.2 Lumen
 
 > For Laravel skip this step
 
@@ -130,13 +93,12 @@ As Lumen does not support `vendor:publish` command file `vendor/neomerx/cors-ill
     ],
 
     /**
-     * A list of allowed request origins (lower-cased, no trail slashes).
-     * Value `true` enables and value `null` disables origin.
+     * A list of allowed request origins (no trail slashes).
      * If value is not on the list it is considered as not allowed.
-     * Environment variables could be used for enabling/disabling certain hosts.
+     * If you want to allow all origins remove/comment this section.
      */
     Settings::KEY_ALLOWED_ORIGINS => [
-        'http://localhost:4200' => true,
+        'http://localhost:4200',
     ],
     
     ...
@@ -144,11 +106,13 @@ As Lumen does not support `vendor:publish` command file `vendor/neomerx/cors-ill
 
 ## Exceptions and CORS headers
 
-When exceptions are thrown and responses are created in [Laravel/Lumen exception handlers](http://laravel.com/docs/5.1/errors) middleware will be excluded from handling responses. It means CORS middleware will not add its CORS headers to responses. For this reason CORS results (including headers) are registered in [Laravel/Lumen Container](http://laravel.com/docs/5.1/container) and made accessible from any part of your application including exception handlers.
+When exceptions are thrown and responses are created in [Laravel/Lumen exception handlers](https://laravel.com/docs/6.x/errors) middleware will be excluded from handling responses. It means CORS middleware will not add its CORS headers to responses. For this reason CORS results (including headers) are registered in [Laravel/Lumen Container](https://laravel.com/docs/6.x/container) and made accessible from any part of your application including exception handlers.
 
 Code sample for reading CORS headers
 
 ```php
+use Neomerx\Cors\Contracts\AnalysisResultInterface;
+
 $corsHeaders = [];
 if (app()->resolved(AnalysisResultInterface::class) === true) {
     /** @var AnalysisResultInterface $result */
@@ -161,18 +125,18 @@ if (app()->resolved(AnalysisResultInterface::class) === true) {
 
 This package provides a number of ways how its behaviour could be customized.
 
-The following methods of class `CorsMiddleware` could be overriden
+The following methods of class `CorsMiddleware` could be replaced in descendant classes
 - `getResponseOnError` You can override this method in order to customize error reply.
 - `getCorsAnalysis` You can override this method to modify how CORS analysis result is saved to Illuminate Container.
 - `getRequestAdapter` You can override this method to replace `IlluminateRequestToPsr7` adapter with another one.
 
 Additionally a custom [AnalysisStrategyInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalysisStrategyInterface.php) could be injected by
 - overriding `getCreateAnalysisStrategyClosure` method in `ServiceProvider` for Laravel/Lumen
-- using [Laravel/Lumen Container binding](http://laravel.com/docs/5.1/container) for interface `AnalysisStrategyInterface`
+- using [Laravel/Lumen Container binding](https://laravel.com/docs/6.x/container) for interface `AnalysisStrategyInterface`
 
 Also custom [AnalyzerInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalyzerInterface.php) could be injected by
 - overriding `getCreateAnalyzerClosure` method in `ServiceProvider` for Laravel/Lumen
-- using [Laravel/Lumen Container binding](http://laravel.com/docs/5.1/container) for interface `AnalyzerInterface`
+- using [Laravel/Lumen Container binding](https://laravel.com/docs/6.x/container) for interface `AnalyzerInterface`
 
 ## Testing
 

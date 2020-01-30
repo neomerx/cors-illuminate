@@ -1,7 +1,9 @@
-<?php namespace Neomerx\CorsIlluminate\Providers;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\CorsIlluminate\Providers;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +24,7 @@
 class LumenServiceProvider extends LaravelServiceProvider
 {
     /** @noinspection PhpMissingParentCallCommonInspection */
-    protected function registerPublishConfig()
+    protected function registerPublishConfig(): void
     {
         // do nothing
     }
@@ -30,7 +32,7 @@ class LumenServiceProvider extends LaravelServiceProvider
     /**
      * @inheritdoc
      */
-    protected function configureCorsAnalyzer()
+    protected function configureCorsAnalyzer(): void
     {
         /** @noinspection PhpUndefinedMethodInspection */
         $this->app->configure(self::CONFIG_FILE_NAME_WO_EXT);

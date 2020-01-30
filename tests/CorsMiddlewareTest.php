@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\CorsIlluminate;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\Tests\CorsIlluminate;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +18,16 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Mockery;
-use \Mockery\MockInterface;
-use \Illuminate\Http\Request;
-use \Illuminate\Http\Response;
-use \Neomerx\CorsIlluminate\CorsMiddleware;
-use \Neomerx\Cors\Contracts\AnalyzerInterface;
-use \Neomerx\Cors\Contracts\AnalysisResultInterface;
-use \Neomerx\Cors\Contracts\Constants\CorsResponseHeaders;
-use \Illuminate\Contracts\Container\Container as ContainerInterface;
+use Closure;
+use Illuminate\Contracts\Container\Container as ContainerInterface;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Mockery;
+use Mockery\MockInterface;
+use Neomerx\Cors\Contracts\AnalysisResultInterface;
+use Neomerx\Cors\Contracts\AnalyzerInterface;
+use Neomerx\Cors\Contracts\Constants\CorsResponseHeaders;
+use Neomerx\CorsIlluminate\CorsMiddleware;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
@@ -62,7 +64,7 @@ class CorsMiddlewareTest extends BaseTestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -75,8 +77,10 @@ class CorsMiddlewareTest extends BaseTestCase
 
     /**
      * Test middleware handling.
+     *
+     * @return void
      */
-    public function testOutOfScope()
+    public function testOutOfScope(): void
     {
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled);
@@ -90,8 +94,10 @@ class CorsMiddlewareTest extends BaseTestCase
 
     /**
      * Test middleware handling.
+     *
+     * @return void
      */
-    public function testPreFlight()
+    public function testPreFlight(): void
     {
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled);
@@ -106,8 +112,10 @@ class CorsMiddlewareTest extends BaseTestCase
 
     /**
      * Test middleware handling.
+     *
+     * @return void
      */
-    public function testActualCors()
+    public function testActualCors(): void
     {
         $headerName = 'Some-Header';
 
@@ -133,8 +141,10 @@ class CorsMiddlewareTest extends BaseTestCase
 
     /**
      * Test middleware handling.
+     *
+     * @return void
      */
-    public function testError()
+    public function testError(): void
     {
         $nextCalled = false;
         $next = $this->getMockForNext($nextCalled);
@@ -152,7 +162,7 @@ class CorsMiddlewareTest extends BaseTestCase
      *
      * @return Closure
      */
-    private function getMockForNext(&$nextCalled, $response = 'some response')
+    private function getMockForNext(&$nextCalled, $response = 'some response'): Closure
     {
         $next = function () use (&$nextCalled, $response) {
             $nextCalled = true;
@@ -169,7 +179,7 @@ class CorsMiddlewareTest extends BaseTestCase
      *
      * @return void
      */
-    private function mockAnalyzerCall($method, $returnValue)
+    private function mockAnalyzerCall(string $method, $returnValue): void
     {
         /** @var MockInterface $analyzer */
         $analyzer = $this->analyzer;
@@ -184,7 +194,7 @@ class CorsMiddlewareTest extends BaseTestCase
      *
      * @return void
      */
-    private function mockContainerCall($method, array $args, $result = null)
+    private function mockContainerCall(string $method, array $args, $result = null): void
     {
         /** @var MockInterface $container */
         $container = $this->container;
@@ -198,7 +208,7 @@ class CorsMiddlewareTest extends BaseTestCase
      *
      * @return void
      */
-    private function mockAnalysisCall($method, $returnValue)
+    private function mockAnalysisCall(string $method, $returnValue): void
     {
         /** @var MockInterface $analysisResult */
         $analysisResult = $this->analysisResult;

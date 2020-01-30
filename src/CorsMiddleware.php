@@ -1,7 +1,9 @@
-<?php namespace Neomerx\CorsIlluminate;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\CorsIlluminate;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +18,15 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Illuminate\Http\Request;
-use \Illuminate\Http\Response;
-use \Psr\Http\Message\RequestInterface;
-use \Neomerx\Cors\Contracts\AnalyzerInterface;
-use \Neomerx\Cors\Contracts\AnalysisResultInterface;
-use \Neomerx\Cors\Contracts\Constants\CorsResponseHeaders;
-use \Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
-use \Illuminate\Contracts\Container\Container as ContainerInterface;
+use Closure;
+use Illuminate\Contracts\Container\Container as ContainerInterface;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Neomerx\Cors\Contracts\AnalysisResultInterface;
+use Neomerx\Cors\Contracts\AnalyzerInterface;
+use Neomerx\Cors\Contracts\Constants\CorsResponseHeaders;
+use Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
+use Psr\Http\Message\RequestInterface;
 
 /**
  * @package Neomerx\CorsIlluminate
@@ -97,7 +99,7 @@ class CorsMiddleware
      *
      * @return Response
      */
-    protected function getResponseOnError(AnalysisResultInterface $analysisResult)
+    protected function getResponseOnError(AnalysisResultInterface $analysisResult): Response
     {
         // avoid unused warning
         $analysisResult ?: null;
@@ -113,7 +115,7 @@ class CorsMiddleware
      *
      * @return AnalysisResultInterface
      */
-    protected function getCorsAnalysis(Request $request)
+    protected function getCorsAnalysis(Request $request): AnalysisResultInterface
     {
         $analysis = $this->analyzer->analyze($this->getRequestAdapter($request));
         $this->container->instance(AnalysisResultInterface::class, $analysis);
@@ -128,7 +130,7 @@ class CorsMiddleware
      *
      * @return RequestInterface
      */
-    protected function getRequestAdapter(Request $request)
+    protected function getRequestAdapter(Request $request): RequestInterface
     {
         return new IlluminateRequestToPsr7($request);
     }
@@ -143,7 +145,7 @@ class CorsMiddleware
      *
      * @see https://github.com/neomerx/cors-psr7/issues/31
      */
-    protected function getPrepareCorsHeaders($headers)
+    protected function getPrepareCorsHeaders(array $headers): array
     {
         if (array_key_exists(CorsResponseHeaders::EXPOSE_HEADERS, $headers) === true) {
             $headers[CorsResponseHeaders::EXPOSE_HEADERS] =

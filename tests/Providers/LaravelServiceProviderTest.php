@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\CorsIlluminate\Providers;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\Tests\CorsIlluminate\Providers;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +18,20 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Mockery;
-use \ArrayAccess;
-use \ReflectionClass;
+use ArrayAccess;
+use Closure;
+use Illuminate\Contracts\Foundation\Application as ApplicationInterface;
+use Mockery;
+use Mockery\MockInterface;
+use Neomerx\Cors\Contracts\AnalysisStrategyInterface;
+use Neomerx\Cors\Contracts\AnalyzerInterface;
+use Neomerx\CorsIlluminate\Providers\LaravelServiceProvider;
+use Neomerx\CorsIlluminate\Settings\Settings;
+use Neomerx\Tests\CorsIlluminate\BaseTestCase;
+use Psr\Log\LoggerInterface;
+use ReflectionClass;
 use ReflectionException;
-use \ReflectionMethod;
-use \Mockery\MockInterface;
-use \Neomerx\Cors\Contracts\AnalyzerInterface;
-use \Neomerx\CorsIlluminate\Settings\Settings;
-use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
-use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
-use \Neomerx\CorsIlluminate\Providers\LaravelServiceProvider;
-use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
+use ReflectionMethod;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
@@ -58,7 +61,7 @@ class LaravelServiceProviderTest extends BaseTestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -79,8 +82,10 @@ class LaravelServiceProviderTest extends BaseTestCase
 
     /**
      * Test register provider.
+     *
+     * @return void
      */
-    public function testRegister()
+    public function testRegister(): void
     {
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->config->shouldReceive('get')->withAnyArgs()->once()->andReturn([]);
@@ -90,22 +95,32 @@ class LaravelServiceProviderTest extends BaseTestCase
         $this->app->shouldReceive('bind')->withAnyArgs()->twice()->andReturnUndefined();
 
         $this->provider->register();
+
+        // mocks will do the checks
+        $this->assertTrue(true);
     }
 
     /**
      * Test boot provider.
+     *
+     * @return void
      */
-    public function testBoot()
+    public function testBoot(): void
     {
         $this->provider->boot();
+
+        // mocks will do the checks
+        $this->assertTrue(true);
     }
 
     /**
      * Test create analysis strategy.
      *
+     * @return void
+     *
      * @throws ReflectionException
      */
-    public function testGetCreateAnalysisStrategyClosure()
+    public function testGetCreateAnalysisStrategyClosure1(): void
     {
         $method  = self::getMethod('getCreateAnalysisStrategyClosure');
         $app     = [
@@ -121,26 +136,35 @@ class LaravelServiceProviderTest extends BaseTestCase
             ->withArgs([LaravelServiceProvider::CONFIG_FILE_NAME_WO_EXT, []])
             ->once()
             ->andReturn([
-                Settings::KEY_SERVER_ORIGIN => 'http://localhost',
+                Settings::KEY_SERVER_ORIGIN => ['scheme' => 'http', 'host' => 'localhost', 'port' => 80],
             ]);
 
         $this->assertInstanceOf(Closure::class, $closure);
         $this->assertNotNull($strategy = $closure($app));
         $this->assertInstanceOf(AnalysisStrategyInterface::class, $strategy);
+
+        /** @var AnalysisStrategyInterface $strategy */
+
+        // as there were no origins section in the config then all origins should be allowed
+        $this->assertTrue($strategy->isRequestOriginAllowed('http://any-url.sample'));
     }
 
     /**
-     * Test create analyzer.
+     * Test create analysis strategy.
+     *
+     * @return void
      *
      * @throws ReflectionException
      */
-    public function testGetCreateAnalyzerClosure()
+    public function testGetCreateAnalysisStrategyClosure2(): void
     {
-        $method  = self::getMethod('getCreateAnalyzerClosure');
+        $method  = self::getMethod('getCreateAnalysisStrategyClosure');
         $app     = [
-            'config'                         => $this->config,
-            AnalysisStrategyInterface::class => $this->strategy,
+            'config' => $this->config,
         ];
+
+        /** @var Closure $closure */
+        $closure = $method->invokeArgs($this->provider, []);
 
         /** @noinspection PhpMethodParametersCountMismatchInspection */
         $this->config
@@ -148,8 +172,53 @@ class LaravelServiceProviderTest extends BaseTestCase
             ->withArgs([LaravelServiceProvider::CONFIG_FILE_NAME_WO_EXT, []])
             ->once()
             ->andReturn([
-                Settings::KEY_SERVER_ORIGIN => 'http://localhost',
+                Settings::KEY_SERVER_ORIGIN        => ['scheme' => 'http', 'host' => 'localhost', 'port' => 80],
+                Settings::KEY_ALLOWED_ORIGINS      => ['http://allowed-url.sample'],
+                Settings::KEY_IS_FORCE_ADD_METHODS => true,
+                Settings::KEY_IS_FORCE_ADD_HEADERS => true,
             ]);
+
+        $this->assertInstanceOf(Closure::class, $closure);
+        $this->assertNotNull($strategy = $closure($app));
+        $this->assertInstanceOf(AnalysisStrategyInterface::class, $strategy);
+
+
+        // as there was origins section in the config then origins check should work
+        $this->assertTrue($strategy->isRequestOriginAllowed('http://allowed-url.sample'));
+        $this->assertFalse($strategy->isRequestOriginAllowed('http://not-allowed-url.sample'));
+    }
+
+    /**
+     * Test create analyzer.
+     *
+     * @return void
+     *
+     * @throws ReflectionException
+     */
+    public function testGetCreateAnalyzerClosure(): void
+    {
+        $method     = self::getMethod('getCreateAnalyzerClosure');
+        $logger     = Mockery::mock(LoggerInterface::class);
+        $app        = [
+            'config'                         => $this->config,
+            AnalysisStrategyInterface::class => $this->strategy,
+            LoggerInterface::class           => $logger,
+        ];
+
+
+        /** @var MockInterface $mockStrategy */
+        $mockStrategy = $this->strategy;
+
+        /** @noinspection PhpMethodParametersCountMismatchInspection */
+        $mockStrategy
+            ->shouldReceive('isLogEnabled')
+            ->withNoArgs()
+            ->once()
+            ->andReturn(true);
+        $mockStrategy
+            ->shouldReceive('setLogger')
+            ->once()
+            ->andReturnUndefined();
 
         /** @var Closure $closure */
         $closure = $method->invokeArgs($this->provider, []);
@@ -166,7 +235,7 @@ class LaravelServiceProviderTest extends BaseTestCase
      *
      * @throws ReflectionException
      */
-    protected static function getMethod($name)
+    protected static function getMethod(string $name): ReflectionMethod
     {
         $class  = new ReflectionClass(LaravelServiceProvider::class);
         $method = $class->getMethod($name);

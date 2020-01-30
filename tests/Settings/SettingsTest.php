@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\CorsIlluminate\Settings;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\Tests\CorsIlluminate\Settings;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +18,8 @@
  * limitations under the License.
  */
 
-use \Neomerx\CorsIlluminate\Settings\Settings;
-use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
+use Neomerx\CorsIlluminate\Settings\Settings;
+use Neomerx\Tests\CorsIlluminate\BaseTestCase;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
@@ -26,35 +28,26 @@ class SettingsTest extends BaseTestCase
 {
     /**
      * Test set settings.
+     *
+     * @return void
      */
-    public function testSetSettings()
+    public function testSetSettings(): void
     {
-        $origin = [
-            'scheme' => 'http',
-            'host'   => 'some-host.com',
-            'port'   => 567,
-        ];
+        $settings = new Settings();
+        $settings->init('http', 'some-host.com', 567);
 
-        $settings = new Settings([
-            Settings::KEY_SERVER_ORIGIN        => $origin,
-            Settings::KEY_ALLOWED_ORIGINS      => ['http://does-not-matter.foo' => true],
-            Settings::KEY_ALLOWED_METHODS      => ['DOES-NOT-MATTER'   => true],
-            Settings::KEY_ALLOWED_HEADERS      => ['x-does-not-matter' => true],
-            Settings::KEY_EXPOSED_HEADERS      => ['x-does-not-matter' => true],
-            Settings::KEY_IS_USING_CREDENTIALS => false,
-            Settings::KEY_FLIGHT_CACHE_MAX_AGE => 0,
-            Settings::KEY_IS_FORCE_ADD_METHODS => false,
-            Settings::KEY_IS_FORCE_ADD_HEADERS => false,
-            Settings::KEY_IS_CHECK_HOST        => false,
-            Settings::KEY_LOGS_ENABLED         => true,
-        ]);
+        $settings->enableLog();
+        $this->assertEquals(true, $settings->isLogEnabled());
 
-        $this->assertEquals($origin, $settings->getServerOrigin());
-        $this->assertEquals(false, $settings->isCheckHost());
-        $this->assertEquals(true, $settings->isLogsEnabled());
+        $settings->disableLog();
+        $this->assertEquals(false, $settings->isLogEnabled());
 
-        $settings->setLogsEnabled(false);
+        $data = $settings->getData();
 
-        $this->assertEquals(false, $settings->isLogsEnabled());
+        $settings->enableLog();
+
+        $settings->setData($data);
+
+        $this->assertEquals(false, $settings->isLogEnabled());
     }
 }

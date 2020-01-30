@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\CorsIlluminate\Providers;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\Tests\CorsIlluminate\Providers;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +18,15 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \ArrayAccess;
-use \ReflectionClass;
+use ArrayAccess;
+use Illuminate\Contracts\Foundation\Application as ApplicationInterface;
+use Mockery;
+use Mockery\MockInterface;
+use Neomerx\CorsIlluminate\Providers\LumenServiceProvider;
+use Neomerx\Tests\CorsIlluminate\BaseTestCase;
+use ReflectionClass;
 use ReflectionException;
-use \ReflectionMethod;
-use \Mockery\MockInterface;
-use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
-use \Neomerx\CorsIlluminate\Providers\LumenServiceProvider;
-use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
+use ReflectionMethod;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
@@ -44,7 +46,7 @@ class LumenServiceProviderTest extends BaseTestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -55,9 +57,11 @@ class LumenServiceProviderTest extends BaseTestCase
     /**
      * Test configureCorsAnalyzer method.
      *
+     * @return void
+     *
      * @throws ReflectionException
      */
-    public function testConfigureCorsAnalyzer()
+    public function testConfigureCorsAnalyzer(): void
     {
         $method = $this->getMethod('configureCorsAnalyzer');
 
@@ -69,17 +73,25 @@ class LumenServiceProviderTest extends BaseTestCase
         $app->shouldReceive('bind')->withAnyArgs()->twice()->andReturnUndefined();
 
         $method->invokeArgs($this->provider, []);
+
+        // mocks will do the checks
+        $this->assertTrue(true);
     }
 
     /**
      * Test registerPublishConfig method.
      *
+     * @return void
+     *
      * @throws ReflectionException
      */
-    public function testRegisterPublishConfig()
+    public function testRegisterPublishConfig(): void
     {
         $method = $this->getMethod('registerPublishConfig');
         $method->invokeArgs($this->provider, []);
+
+        // mocks will do the checks
+        $this->assertTrue(true);
     }
 
     /**
@@ -89,7 +101,7 @@ class LumenServiceProviderTest extends BaseTestCase
      *
      * @throws ReflectionException
      */
-    protected static function getMethod($name)
+    protected static function getMethod(string $name): ReflectionMethod
     {
         $class  = new ReflectionClass(LumenServiceProvider::class);
         $method = $class->getMethod($name);

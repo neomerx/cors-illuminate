@@ -1,7 +1,9 @@
-<?php namespace Neomerx\CorsIlluminate\Adapters;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\CorsIlluminate\Adapters;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +18,11 @@
  * limitations under the License.
  */
 
-use \LogicException;
-use \Illuminate\Http\Request;
-use \Psr\Http\Message\UriInterface;
-use \Psr\Http\Message\StreamInterface;
-use \Psr\Http\Message\RequestInterface;
+use Illuminate\Http\Request;
+use LogicException;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * This class is a wrapper for Laravel/Lumen Requests to PSR-7 compatible objects designed specifically for

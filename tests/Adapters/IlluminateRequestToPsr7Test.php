@@ -1,7 +1,9 @@
-<?php namespace Neomerx\Tests\CorsIlluminate\Adapters;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\Tests\CorsIlluminate\Adapters;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +18,13 @@
  * limitations under the License.
  */
 
-use \Mockery;
-use \Illuminate\Http\Request;
-use \Psr\Http\Message\UriInterface;
-use \Psr\Http\Message\StreamInterface;
-use \Psr\Http\Message\RequestInterface;
-use \Neomerx\Tests\CorsIlluminate\BaseTestCase;
-use \Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
+use Illuminate\Http\Request;
+use Mockery;
+use Neomerx\CorsIlluminate\Adapters\IlluminateRequestToPsr7;
+use Neomerx\Tests\CorsIlluminate\BaseTestCase;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * @package Neomerx\Tests\CorsIlluminate
@@ -44,7 +46,7 @@ class IlluminateRequestToPsr7Test extends BaseTestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -91,116 +93,144 @@ class IlluminateRequestToPsr7Test extends BaseTestCase
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testGetProtocolVersion()
+    public function testGetProtocolVersion(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->getProtocolVersion();
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithProtocolVersion()
+    public function testWithProtocolVersion(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->withProtocolVersion(null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testGetHeaders()
+    public function testGetHeaders(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->getHeaders();
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testGetHeaderLine()
+    public function testGetHeaderLine(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->getHeaderLine(null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithHeader()
+    public function testWithHeader(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->withHeader(null, null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithAddedHeader()
+    public function testWithAddedHeader(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->withAddedHeader(null, null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithoutHeader()
+    public function testWithoutHeader(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->withoutHeader(null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testGetBody()
+    public function testGetBody(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->getBody();
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithBody()
+    public function testWithBody(): void
     {
+        $this->expectException(\LogicException::class);
+
         /** @var StreamInterface $body */
         $body = Mockery::mock(StreamInterface::class);
         $this->adapter->withBody($body);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testGetRequestTarget()
+    public function testGetRequestTarget(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->getRequestTarget();
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithRequestTarget()
+    public function testWithRequestTarget(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->withRequestTarget(null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithMethod()
+    public function testWithMethod(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->withMethod(null);
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testGetUri()
+    public function testGetUri(): void
     {
+        $this->expectException(\LogicException::class);
+
         $this->adapter->getUri();
     }
 
     /**
-     * @expectedException \LogicException
+     * @return void
      */
-    public function testWithUri()
+    public function testWithUri(): void
     {
+        $this->expectException(\LogicException::class);
+
         /** @var UriInterface $uri */
         $uri = Mockery::mock(UriInterface::class);
         $this->adapter->withUri($uri);

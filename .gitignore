@@ -1,4 +1,5 @@
 /vendor/
 /build/
+/html-coverage/
 .idea/
 composer.lock

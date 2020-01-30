@@ -1,7 +1,9 @@
-<?php namespace Neomerx\CorsIlluminate\Providers;
+<?php declare(strict_types = 1);
+
+namespace Neomerx\CorsIlluminate\Providers;
 
 /**
- * Copyright 2015-2019 info@neomerx.com
+ * Copyright 2015-2020 info@neomerx.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +18,14 @@
  * limitations under the License.
  */
 
-use \Closure;
-use \Neomerx\Cors\Analyzer;
-use \Psr\Log\LoggerInterface;
-use \Illuminate\Support\ServiceProvider;
-use \Illuminate\Contracts\Config\Repository;
-use \Neomerx\Cors\Contracts\AnalyzerInterface;
-use \Neomerx\CorsIlluminate\Settings\Settings;
-use \Neomerx\Cors\Contracts\AnalysisStrategyInterface;
-use \Illuminate\Contracts\Foundation\Application as ApplicationInterface;
+use Closure;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Support\ServiceProvider;
+use Neomerx\Cors\Analyzer;
+use Neomerx\Cors\Contracts\AnalysisStrategyInterface;
+use Neomerx\Cors\Contracts\AnalyzerInterface;
+use Neomerx\CorsIlluminate\Settings\Settings;
+use Psr\Log\LoggerInterface;
 
 /**
  * @package Neomerx\CorsIlluminate
@@ -40,14 +41,9 @@ class LaravelServiceProvider extends ServiceProvider
     protected $defer = false;
 
     /**
-     * @var bool|null|LoggerInterface
-     */
-    private $logger = false;
-
-    /**
      * @var bool|array
      */
-    private $settings = false;
+    private $settingsData = false;
 
     /**
      * @inheritdoc
@@ -70,8 +66,10 @@ class LaravelServiceProvider extends ServiceProvider
 
     /**
      * Merge default config and config from application `config` folder.
+     *
+     * @return void
      */
-    protected function mergeConfigs()
+    protected function mergeConfigs(): void
     {
         $repo   = $this->getConfigRepository();
         $config = $repo->get(static::CONFIG_FILE_NAME_WO_EXT, []);
@@ -83,7 +81,7 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return void
      */
-    protected function registerPublishConfig()
+    protected function registerPublishConfig(): void
     {
         $publishPath = $this->app['path.config'] . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
         $this->publishes([
@@ -94,7 +92,7 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return void
      */
-    protected function configureCorsAnalyzer()
+    protected function configureCorsAnalyzer(): void
     {
         $this->app->bind(AnalysisStrategyInterface::class, $this->getCreateAnalysisStrategyClosure());
         $this->app->bind(AnalyzerInterface::class, $this->getCreateAnalyzerClosure());
@@ -103,11 +101,11 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return Closure
      */
-    protected function getCreateAnalysisStrategyClosure()
+    protected function getCreateAnalysisStrategyClosure(): Closure
     {
-        return function () {
-            $settings = $this->getSettings();
-            $strategy = new Settings($settings);
+        return function (): AnalysisStrategyInterface {
+            $data     = $this->getSettingsData();
+            $strategy = (new Settings())->setData($data);
 
             return $strategy;
         };
@@ -118,15 +116,20 @@ class LaravelServiceProvider extends ServiceProvider
      *
      * @SuppressWarnings(PHPMD.StaticAccess)
      */
-    protected function getCreateAnalyzerClosure()
+    protected function getCreateAnalyzerClosure(): Closure
     {
-        return function ($app) {
+        return function ($app): AnalyzerInterface {
             /** @var AnalysisStrategyInterface $strategy */
             $strategy = $app[AnalysisStrategyInterface::class];
             $analyzer = Analyzer::instance($strategy);
 
-            $logger = $this->getLoggerIfEnabled($app);
-            $logger === null ?: $analyzer->setLogger($logger);
+            /** @var Settings $strategy */
+
+            if ($strategy->isLogEnabled() === true) {
+                /** @var LoggerInterface $logger */
+                $logger = $app[LoggerInterface::class];
+                $analyzer->setLogger($logger);
+            }
 
             return $analyzer;
         };
@@ -135,7 +138,7 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return string
      */
-    protected function getConfigPath()
+    protected function getConfigPath(): string
     {
         $root = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
         $path = $root . 'config' . DIRECTORY_SEPARATOR . static::CONFIG_FILE_NAME_WO_EXT . '.php';
@@ -144,38 +147,64 @@ class LaravelServiceProvider extends ServiceProvider
     }
 
     /**
-     * @param ApplicationInterface $app
-     *
-     * @return null|LoggerInterface
-     */
-    protected function getLoggerIfEnabled($app)
-    {
-        /** @var ApplicationInterface $app */
-
-        if ($this->logger === false) {
-            $settings       = $this->getSettings();
-            $loggingEnabled =
-                array_key_exists(Settings::KEY_LOGS_ENABLED, $settings) === true &&
-                $settings[Settings::KEY_LOGS_ENABLED] === true;
-
-            $this->logger = $loggingEnabled === true ? $app[LoggerInterface::class] : null;
-        }
-
-        return $this->logger;
-    }
-
-    /**
      * @return array
+     *
+     * PHPMD do not work with ['key' => $var] = ...;
+     * @SuppressWarnings(PHPMD.UndefinedVariable)
      */
-    protected function getSettings()
+    protected function getSettingsData(): array
     {
-        /** @var ApplicationInterface $app */
+        if ($this->settingsData === false) {
+            $configFile = $this->getConfigRepository()->get(static::CONFIG_FILE_NAME_WO_EXT, []);
 
-        if ($this->settings === false) {
-            $this->settings = $this->getConfigRepository()->get(static::CONFIG_FILE_NAME_WO_EXT, []);
+            // server origin should be in parse_url() result format.
+            \assert(
+                \array_key_exists(Settings::KEY_SERVER_ORIGIN, $configFile) &&
+                \is_array($configFile[Settings::KEY_SERVER_ORIGIN]),
+                'Server origin must be array in `parse_url()` format.'
+            );
+            \assert(\array_key_exists('scheme', $configFile[Settings::KEY_SERVER_ORIGIN]));
+            \assert(\array_key_exists('host', $configFile[Settings::KEY_SERVER_ORIGIN]));
+            \assert(\array_key_exists('port', $configFile[Settings::KEY_SERVER_ORIGIN]));
+            [
+                'scheme' => $serverOriginScheme,
+                'host'   => $serverOriginHost,
+                'port'   => $serverOriginPort,
+            ] = $configFile[Settings::KEY_SERVER_ORIGIN];
+
+            $settings = new Settings();
+            $settings->init($serverOriginScheme, $serverOriginHost, $serverOriginPort);
+
+            $origins = $configFile[Settings::KEY_ALLOWED_ORIGINS] ?? null;
+            $origins !== null ? $settings->setAllowedOrigins($origins) : $settings->enableAllOriginsAllowed();
+
+            $settings->setAllowedMethods($configFile[Settings::KEY_ALLOWED_METHODS] ?? []);
+            $settings->setAllowedHeaders($configFile[Settings::KEY_ALLOWED_HEADERS] ?? []);
+            $settings->setExposedHeaders($configFile[Settings::KEY_EXPOSED_HEADERS] ?? []);
+            $settings->setPreFlightCacheMaxAge($configFile[Settings::KEY_FLIGHT_CACHE_MAX_AGE] ?? 0);
+
+            \boolval($configFile[Settings::KEY_IS_USING_CREDENTIALS] ?? false) === true ?
+                $settings->setCredentialsSupported() : $settings->setCredentialsNotSupported();
+
+            \boolval($configFile[Settings::KEY_IS_FORCE_ADD_METHODS] ?? false) === true ?
+                $settings->enableAddAllowedMethodsToPreFlightResponse() :
+                $settings->disableAddAllowedMethodsToPreFlightResponse();
+
+            \boolval($configFile[Settings::KEY_IS_FORCE_ADD_HEADERS] ?? false) === true ?
+                $settings->enableAddAllowedHeadersToPreFlightResponse() :
+                $settings->disableAddAllowedHeadersToPreFlightResponse();
+
+            \boolval($configFile[Settings::KEY_IS_CHECK_HOST] ?? false) === true ?
+                $settings->enableCheckHost() : $settings->disableCheckHost();
+
+
+            \boolval($configFile[Settings::KEY_LOGS_ENABLED] ?? false) === true ?
+                $settings->enableLog() : $settings->disableLog();
+
+            $this->settingsData = $settings->getData();
         }
 
-        return $this->settings;
+        return $this->settingsData;
     }
 
     /**
@@ -192,7 +221,7 @@ class LaravelServiceProvider extends ServiceProvider
     /**
      * @return array
      */
-    protected function getBaseConfig()
+    protected function getBaseConfig(): array
     {
         $path = $this->getConfigPath();
         /** @noinspection PhpIncludeInspection */
