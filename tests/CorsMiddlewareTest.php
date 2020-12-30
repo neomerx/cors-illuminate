@@ -135,7 +135,7 @@ class CorsMiddlewareTest extends BaseTestCase
         /** @var Response $response */
         $this->assertNotNull($response = $this->middleware->handle($this->request, $next));
         $this->assertTrue($nextCalled);
-        $this->assertEquals(['value 1', 'value 2'], $response->headers->get($headerName, null, false));
+        $this->assertEquals(['value 1', 'value 2'], $response->headers->all($headerName));
         $this->assertEquals('expose1, expose2', $response->headers->get(CorsResponseHeaders::EXPOSE_HEADERS));
     }
 
