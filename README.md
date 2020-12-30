@@ -10,7 +10,7 @@ This package adds [Cross-Origin Resource Sharing](http://www.w3.org/TR/cors/) (C
 
 The package is based on [Framework agnostic (PSR-7) CORS implementation](https://github.com/neomerx/cors-psr7).
 
-The **current version V3** is designed for Laravel 6 or higher. If you use lower Laravel version please use **V2**.
+The **current version V4** is designed for Laravel 8 or higher. If you use lower Laravel version please use **V2**.
 
 ## Install
 
@@ -106,7 +106,7 @@ As Lumen does not support `vendor:publish` command file `vendor/neomerx/cors-ill
 
 ## Exceptions and CORS headers
 
-When exceptions are thrown and responses are created in [Laravel/Lumen exception handlers](https://laravel.com/docs/6.x/errors) middleware will be excluded from handling responses. It means CORS middleware will not add its CORS headers to responses. For this reason CORS results (including headers) are registered in [Laravel/Lumen Container](https://laravel.com/docs/6.x/container) and made accessible from any part of your application including exception handlers.
+When exceptions are thrown and responses are created in [Laravel/Lumen exception handlers](https://laravel.com/docs/8.x/errors) middleware will be excluded from handling responses. It means CORS middleware will not add its CORS headers to responses. For this reason CORS results (including headers) are registered in [Laravel/Lumen Container](https://laravel.com/docs/8.x/container) and made accessible from any part of your application including exception handlers.
 
 Code sample for reading CORS headers
 
@@ -132,11 +132,11 @@ The following methods of class `CorsMiddleware` could be replaced in descendant 
 
 Additionally a custom [AnalysisStrategyInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalysisStrategyInterface.php) could be injected by
 - overriding `getCreateAnalysisStrategyClosure` method in `ServiceProvider` for Laravel/Lumen
-- using [Laravel/Lumen Container binding](https://laravel.com/docs/6.x/container) for interface `AnalysisStrategyInterface`
+- using [Laravel/Lumen Container binding](https://laravel.com/docs/8.x/container) for interface `AnalysisStrategyInterface`
 
 Also custom [AnalyzerInterface](https://github.com/neomerx/cors-psr7/blob/master/src/Contracts/AnalyzerInterface.php) could be injected by
 - overriding `getCreateAnalyzerClosure` method in `ServiceProvider` for Laravel/Lumen
-- using [Laravel/Lumen Container binding](https://laravel.com/docs/6.x/container) for interface `AnalyzerInterface`
+- using [Laravel/Lumen Container binding](https://laravel.com/docs/8.x/container) for interface `AnalyzerInterface`
 
 ## Testing
 

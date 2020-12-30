@@ -71,7 +71,7 @@ class IlluminateRequestToPsr7 implements RequestInterface
      */
     public function getHeader($name)
     {
-        return $this->request->headers->get($name, null, false);
+        return $this->request->headers->all($name);
     }
 
     /**
